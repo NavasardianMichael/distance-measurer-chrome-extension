@@ -1,0 +1,12 @@
+.header {
+  text-align: center;
+  padding: var(--ruler-extension-css-vars-space-lg)
+    var(--ruler-extension-css-vars-space-lg)
+    var(--ruler-extension-css-vars-space-sm)
+    var(--ruler-extension-css-vars-space-lg);
+
+  .title {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}

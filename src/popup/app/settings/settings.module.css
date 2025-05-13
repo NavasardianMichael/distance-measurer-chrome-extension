@@ -1,0 +1,153 @@
+.settings {
+  --ruler-extension-css-vars-switch-base-height: 24px;
+  --ruler-extension-css-vars-switch-base-width: 50px;
+}
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  padding: var(--ruler-extension-css-vars-space-sm) var(--ruler-extension-css-vars-space-lg)
+    var(--ruler-extension-css-vars-space-lg) var(--ruler-extension-css-vars-space-lg);
+  user-select: none;
+  gap: var(--ruler-extension-css-vars-space-md);
+
+  hr {
+    width: 100%;
+  }
+
+  & label {
+    font-weight: bold;
+  }
+
+  & input {
+    margin: 0;
+  }
+
+  & input:not([type='range']):not([type='color']),
+  & select {
+    padding: var(--ruler-extension-css-vars-space-xxs) var(--ruler-extension-css-vars-space-xs);
+    border-radius: var(--ruler-extension-css-vars-space-xxs);
+    border: 1px solid var(--ruler-extension-css-vars-border-color);
+
+    &:focus-visible {
+      outline-color: var(--ruler-extension-css-vars-bolder-color);
+    }
+  }
+
+  & input[type='color'] {
+    padding: 0;
+    outline: none;
+    border: none;
+    height: calc(var(--ruler-extension-css-vars-space-md) * 2);
+    width: calc(var(--ruler-extension-css-vars-space-md) * 3);
+    box-sizing: content-box;
+  }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: var(--ruler-extension-css-vars-switch-base-width);
+    height: var(--ruler-extension-css-vars-switch-base-height);
+
+    & input {
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      position: relative;
+      z-index: 1;
+
+      &:checked + .slider {
+        background-color: var(--ruler-extension-css-vars-primary-color);
+      }
+
+      &:checked + .slider:before {
+        -webkit-transform: translateX(calc(var(--ruler-extension-css-vars-switch-base-height) - 1px));
+        -ms-transform: translateX(calc(var(--ruler-extension-css-vars-switch-base-height) - 1px));
+        transform: translateX(calc(var(--ruler-extension-css-vars-switch-base-height) - 1px));
+      }
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--ruler-extension-css-vars-border-color);
+      -webkit-transition: 0.2s;
+      transition: 0.2s;
+      border-radius: 34px;
+
+      &:before {
+        border-radius: 50%;
+        position: absolute;
+        content: '';
+        height: calc(var(--ruler-extension-css-vars-switch-base-height) - 7px);
+        width: calc(var(--ruler-extension-css-vars-switch-base-height) - 7px);
+        left: calc(var(--ruler-extension-css-vars-switch-base-width) - 45px);
+        bottom: calc(var(--ruler-extension-css-vars-switch-base-height) - 21px);
+        background-color: var(--ruler-extension-css-vars-overlay-color);
+        -webkit-transition: 0.2s;
+        transition: 0.2s;
+      }
+    }
+  }
+
+  .resetBtn {
+    padding: var(--ruler-extension-css-vars-space-xxs) var(--ruler-extension-css-vars-space-xs);
+    margin: auto;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: var(--ruler-extension-css-vars-primary-color);
+    color: var(--ruler-extension-css-vars-overlay-color);
+    border-radius: var(--ruler-extension-css-vars-space-xxs);
+    outline-width: 1px;
+    outline-style: solid;
+    outline-color: var(--ruler-extension-css-vars-primary-color);
+    transition: 0.1s;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--ruler-extension-css-vars-primary-color);
+      background-color: var(--ruler-extension-css-vars-overlay-color);
+    }
+  }
+
+  .flex {
+    display: flex;
+
+    &:not(.column) {
+      align-items: center;
+    }
+
+    &.column {
+      flex-direction: column;
+    }
+
+    &.spaceXS {
+      gap: var(--ruler-extension-css-vars-space-xs);
+    }
+
+    &.spaceSM {
+      gap: var(--ruler-extension-css-vars-space-sm);
+    }
+
+    &.spaceMD {
+      gap: var(--ruler-extension-css-vars-space-md);
+    }
+
+    &.spaceLG {
+      gap: var(--ruler-extension-css-vars-space-lg);
+    }
+  }
+
+  .hint {
+    margin-top: 0;
+    margin-bottom: 0;
+    display: block;
+    font-size: var(--ruler-extension-css-vars-space-sm);
+  }
+}

@@ -1,0 +1,16 @@
+:root {
+  --ruler-extension-css-vars-primary-color: #017afa;
+  --ruler-extension-css-vars-contrast-color: #252525;
+  --ruler-extension-css-vars-overlay-color: #fff;
+  --ruler-extension-css-vars-border-color: #efefef;
+  --ruler-extension-css-vars-border-color-bold: #d8d8d8;
+  --ruler-extension-css-vars-border-focus-color: #b3b2b2;
+  --ruler-extension-css-vars-action-color: rgb(235, 235, 235);
+
+  --ruler-extension-css-vars-space-xxs: 4px;
+  --ruler-extension-css-vars-space-xs: 8px;
+  --ruler-extension-css-vars-space-sm: 12px;
+  --ruler-extension-css-vars-space-md: 16px;
+  --ruler-extension-css-vars-space-lg: 20px;
+  --ruler-extension-css-vars-space-xlg: 24px;
+}

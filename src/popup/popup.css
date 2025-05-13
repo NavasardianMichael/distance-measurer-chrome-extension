@@ -1,0 +1,20 @@
+@import '../_shared/styles/variables.css';
+
+body {
+  margin: 0;
+}
+
+#popup-root {
+  min-width: 390px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ruler-extension-css-vars-space-lg);
+
+  font-size: 14px;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
