@@ -1,3 +1,4 @@
+import { generateArrow } from '_shared/functions/metrics'
 import styles from './styles.module.css'
 
 // console.log({ container })
@@ -52,6 +53,16 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
   frameRightBorder.classList.add(styles.frameVerticalBorder)
   frameRightBorder.style.left = `${frameRight}px`
   metricsFragment.appendChild(frameRightBorder)
+
+  const horizontalArrowMetric = generateArrow(
+    frameLeft,
+    frameTop,
+    Math.abs(frameLeft - frameRight),
+    Math.abs(frameTop - frameBottom),
+    20,
+    20
+  )
+  metricsFragment.appendChild(horizontalArrowMetric)
 
   return metricsFragment
 }
