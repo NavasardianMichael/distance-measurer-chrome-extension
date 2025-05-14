@@ -17,7 +17,7 @@ const manifest: ManifestV3Export = {
   content_scripts: [
     {
       matches: ['<all_urls>'],
-      js: ['src/content/content.tsx'],
+      js: ['src/content/content.ts'],
     },
   ],
   action: {

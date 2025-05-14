@@ -1,0 +1,35 @@
+:root {
+  --color: gray;
+}
+
+body {
+  display: flex;
+}
+
+.hovered {
+  transition: 0.1s;
+  box-shadow: 0 0 1px 1px gray;
+}
+
+.selected {
+  transition: 0.2s;
+  box-shadow: 0 0 1px 2px gray;
+}
+
+.frameBorder {
+  position: absolute;
+  background-color: var(--color);
+  box-sizing: border-box;
+
+  &.frameVerticalBorder {
+    width: 1px;
+    top: 0;
+    bottom: 0;
+  }
+
+  &.frameHorizontalBorder {
+    height: 1px;
+    left: 0;
+    right: 0;
+  }
+}
