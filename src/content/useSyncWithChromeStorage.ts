@@ -3,7 +3,11 @@ import { SETTINGS_FORM_INITIAL_VALUES } from '_shared/constants/settings'
 import { UI_INITIAL_VALUES } from '_shared/constants/ui'
 import { setChromeLocalStorageValue } from '_shared/functions/chromeStorage'
 import { State } from '_shared/types/state'
-import { Setters } from '../App'
+
+type Setters = {
+  setSettings: (settings: State['settings'], isFromStorage?: boolean) => void
+  setUI: (ui: State['ui'], isFromStorage?: boolean) => void
+}
 
 export const useSyncWithChromeStorage = (
   { setSettings, setUI }: Setters,

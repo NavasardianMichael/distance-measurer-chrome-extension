@@ -1,19 +1,50 @@
-import { generateArrow } from '_shared/functions/metrics'
 import styles from './styles.module.css'
 
-// console.log({ container })
 
-// const frame = {
-//   topBorder: document.createElement('div'),
-//   bottomBorder: document.createElement('div'),
-//   leftBorder: document.createElement('div'),
-//   rightBorder: document.createElement('div'),
-// }
-// const frameBorderNames = ['topBorder', 'bottomBorder', 'leftBorder', 'rightBorder']
+const hoveredClassName = styles['distance-measurer-extension_hovered']
+const selectedClassName = styles['distance-measurer-extension_selected']
+const lineWidth = 4
 
-// frameBorderNames.forEach((frameBorderName) => {
-//   frame[frameBorderName].classList.add(styles.frameBorder)
-// })
+export const generateArrow = (
+  frameLeft: number,
+  frameRight: number,
+  frameTop: number,
+  frameBottom: number,
+  options: {
+    isVertical: boolean
+  }
+) => {
+  const metricContainer = document.createElement('div')
+  metricContainer.classList.add(styles.metricContainer)
+  if (options.isVertical) {
+    metricContainer.classList.add(styles.metricVertical)
+    metricContainer.style.top = `${Math.min(frameTop, frameBottom)}px`
+    metricContainer.style.left = `${frameLeft + Math.abs(frameLeft - frameRight) / 2 - lineWidth / 2}px`
+  } else {
+    metricContainer.classList.add(styles.metricHorizontal)
+    metricContainer.style.top = `${frameTop - Math.abs(frameTop - frameBottom) / 2 - lineWidth / 2}px`
+    metricContainer.style.left = `${Math.min(frameLeft, frameRight)}px`
+  }
+
+  const metricLine = document.createElement('div')
+  metricLine.classList.add(styles.metricLine)
+  if (options.isVertical) {
+    metricLine.style.width = `${lineWidth}px`
+    metricLine.style.height = `${Math.abs(frameTop - frameBottom)}px`
+  } else {
+    metricLine.style.height = `${lineWidth}px`
+    metricLine.style.width = `${Math.abs(frameLeft - frameRight)}px`
+  }
+  metricContainer.appendChild(metricLine)
+
+  const metricValue = document.createElement('p')
+  metricValue.classList.add(styles.metricValue)
+  metricValue.innerText = options.isVertical ? `${Math.abs(frameTop - frameBottom)}px` : `${Math.abs(frameLeft - frameRight)}px`
+  metricContainer.appendChild(metricValue)
+
+  return metricContainer
+}
+
 
 const constructMetrics = (elementsSet: Set<HTMLElement>) => {
   const elements = Array.from(elementsSet)
@@ -54,13 +85,25 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
   frameRightBorder.style.left = `${frameRight}px`
   metricsFragment.appendChild(frameRightBorder)
 
+  const verticalArrowMetric = generateArrow(
+    frameLeft,
+    frameRight,
+    frameTop,
+    frameBottom,
+    {
+      isVertical: true
+    }
+  )
+  metricsFragment.appendChild(verticalArrowMetric)
+
   const horizontalArrowMetric = generateArrow(
     frameLeft,
+    frameRight,
     frameTop,
-    Math.abs(frameLeft - frameRight),
-    Math.abs(frameTop - frameBottom),
-    20,
-    20
+    frameBottom,
+    {
+      isVertical: false
+    }
   )
   metricsFragment.appendChild(horizontalArrowMetric)
 
@@ -80,10 +123,8 @@ const initMetrics = (app: HTMLDivElement) => {
 }
 
 export const initDistanceMeasurer = (app: HTMLDivElement) => {
-  const { paintMetrics, removeMetrics } = initMetrics(app)
+  const { paintMetrics } = initMetrics(app)
 
-  const hoveredClassName = styles.hovered
-  const selectedClassName = styles.selected
 
   let isCtrlPressed = false
   let hoveredElement: HTMLElement | null = null
@@ -98,15 +139,15 @@ export const initDistanceMeasurer = (app: HTMLDivElement) => {
       isCtrlPressed = false
       // removeMetrics()
 
-      if (hoveredElement) {
-        hoveredElement.classList.remove(hoveredClassName)
-        hoveredElement = null
-      }
+      // if (hoveredElement) {
+      //   hoveredElement.classList.remove(hoveredClassName)
+      //   hoveredElement = null
+      // }
 
-      selectedElements.forEach((el) => {
-        el.classList.remove(selectedClassName)
-      })
-      selectedElements.clear()
+      // selectedElements.forEach((el) => {
+      //   el.classList.remove(selectedClassName)
+      // })
+      // selectedElements.clear()
     }
   })
 
