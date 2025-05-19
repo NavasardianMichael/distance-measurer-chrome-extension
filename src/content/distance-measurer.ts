@@ -1,11 +1,12 @@
+import { checkAreOnSameLine } from '_shared/functions/units'
 import styles from './styles.module.css'
 
 
 const hoveredClassName = styles['distance-measurer-extension_hovered']
 const selectedClassName = styles['distance-measurer-extension_selected']
-const lineWidth = 4
+const lineWidth = 2
 
-export const generateArrow = (
+const generateArrow = (
   frameLeft: number,
   frameRight: number,
   frameTop: number,
@@ -18,11 +19,15 @@ export const generateArrow = (
   metricContainer.classList.add(styles.metricContainer)
   if (options.isVertical) {
     metricContainer.classList.add(styles.metricVertical)
+    metricContainer.classList.add(styles['chevron-up'])
+    metricContainer.classList.add(styles['chevron-down'])
     metricContainer.style.top = `${Math.min(frameTop, frameBottom)}px`
-    metricContainer.style.left = `${frameLeft + Math.abs(frameLeft - frameRight) / 2 - lineWidth / 2}px`
+    metricContainer.style.left = `${Math.min(frameLeft, frameRight) + Math.abs(frameLeft - frameRight) / 2 - lineWidth / 2}px`
   } else {
     metricContainer.classList.add(styles.metricHorizontal)
-    metricContainer.style.top = `${frameTop - Math.abs(frameTop - frameBottom) / 2 - lineWidth / 2}px`
+    metricContainer.classList.add(styles['chevron-left'])
+    metricContainer.classList.add(styles['chevron-right'])
+    metricContainer.style.top = `${Math.min(frameTop, frameBottom) + Math.abs(frameTop - frameBottom) / 2 - lineWidth / 2}px`
     metricContainer.style.left = `${Math.min(frameLeft, frameRight)}px`
   }
 
@@ -39,7 +44,8 @@ export const generateArrow = (
 
   const metricValue = document.createElement('p')
   metricValue.classList.add(styles.metricValue)
-  metricValue.innerText = options.isVertical ? `${Math.abs(frameTop - frameBottom)}px` : `${Math.abs(frameLeft - frameRight)}px`
+  const processedValue = options.isVertical ? Math.abs(frameTop - frameBottom) : Math.abs(frameLeft - frameRight)
+  metricValue.innerText = `${+processedValue.toFixed(2)}px`
   metricContainer.appendChild(metricValue)
 
   return metricContainer
@@ -50,62 +56,91 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
   const elements = Array.from(elementsSet)
 
   const firstElement = elements[0]
-  const firstElementRect = firstElement.getBoundingClientRect()
+  const { top: firstElementTop, bottom: firstElementBottom, left: firstElementLeft, right: firstElementRight } = firstElement.getBoundingClientRect()
   const secondElement = elements[1]
-  const secondElementRect = secondElement.getBoundingClientRect()
+  const { top: secondElementTop, bottom: secondElementBottom, left: secondElementLeft, right: secondElementRight } = secondElement.getBoundingClientRect()
+  const isVertcallyOnSameLine = checkAreOnSameLine(firstElementTop, firstElementBottom, secondElementTop, secondElementBottom)
+  const isHorizontallyOnSameLine = checkAreOnSameLine(firstElementLeft, firstElementRight, secondElementLeft, secondElementRight)
 
-  const frameTop = Math.max(firstElementRect.bottom, secondElementRect.bottom)
-  const frameBottom = Math.min(firstElementRect.top, secondElementRect.top)
-  const frameLeft = Math.min(firstElementRect.right, secondElementRect.right)
-  const frameRight = Math.max(firstElementRect.left, secondElementRect.left)
+  const frameTop = Math.min(firstElementBottom, secondElementBottom)
+  const frameBottom = Math.max(firstElementTop, secondElementTop)
+  const frameLeft = Math.min(firstElementRight, secondElementRight)
+  const frameRight = Math.max(firstElementLeft, secondElementLeft)
 
   const metricsFragment = document.createDocumentFragment()
 
-  const frameTopBorder = document.createElement('div')
-  frameTopBorder.classList.add(styles.frameBorder)
-  frameTopBorder.classList.add(styles.frameHorizontalBorder)
-  frameTopBorder.style.top = `${frameTop}px`
-  metricsFragment.appendChild(frameTopBorder)
+  if (!isVertcallyOnSameLine) {
+    const frameTopBorder = document.createElement('div')
+    frameTopBorder.classList.add(styles.frameBorder)
+    frameTopBorder.classList.add(styles.frameHorizontalBorder)
+    frameTopBorder.style.top = `${frameTop}px`
+    metricsFragment.appendChild(frameTopBorder)
 
-  const frameBottomBorder = document.createElement('div')
-  frameBottomBorder.classList.add(styles.frameBorder)
-  frameBottomBorder.classList.add(styles.frameHorizontalBorder)
-  frameBottomBorder.style.top = `${frameBottom}px`
-  metricsFragment.appendChild(frameBottomBorder)
+    const frameBottomBorder = document.createElement('div')
+    frameBottomBorder.classList.add(styles.frameBorder)
+    frameBottomBorder.classList.add(styles.frameHorizontalBorder)
+    frameBottomBorder.style.top = `${frameBottom}px`
+    metricsFragment.appendChild(frameBottomBorder)
 
-  const frameLeftBorder = document.createElement('div')
-  frameLeftBorder.classList.add(styles.frameBorder)
-  frameLeftBorder.classList.add(styles.frameVerticalBorder)
-  frameLeftBorder.style.left = `${frameLeft}px`
-  metricsFragment.appendChild(frameLeftBorder)
+    const verticalArrowMetric = generateArrow(
+      frameLeft + window.scrollX,
+      frameRight + window.scrollX,
+      frameTop + window.scrollY,
+      frameBottom + window.scrollY,
+      {
+        isVertical: true
+      }
+    )
+    metricsFragment.appendChild(verticalArrowMetric)
+  }
 
-  const frameRightBorder = document.createElement('div')
-  frameRightBorder.classList.add(styles.frameBorder)
-  frameRightBorder.classList.add(styles.frameVerticalBorder)
-  frameRightBorder.style.left = `${frameRight}px`
-  metricsFragment.appendChild(frameRightBorder)
+  if (!isHorizontallyOnSameLine) {
+    const frameLeftBorder = document.createElement('div')
+    frameLeftBorder.classList.add(styles.frameBorder)
+    frameLeftBorder.classList.add(styles.frameVerticalBorder)
+    frameLeftBorder.style.left = `${frameLeft}px`
+    metricsFragment.appendChild(frameLeftBorder)
 
-  const verticalArrowMetric = generateArrow(
-    frameLeft,
-    frameRight,
-    frameTop,
-    frameBottom,
-    {
-      isVertical: true
+    const frameRightBorder = document.createElement('div')
+    frameRightBorder.classList.add(styles.frameBorder)
+    frameRightBorder.classList.add(styles.frameVerticalBorder)
+    frameRightBorder.style.left = `${frameRight}px`
+    metricsFragment.appendChild(frameRightBorder)
+
+    const horizontalArrowMetric = generateArrow(
+      frameLeft + window.scrollX,
+      frameRight + window.scrollX,
+      frameTop + window.scrollY,
+      frameBottom + window.scrollY,
+      {
+        isVertical: false
+      }
+    )
+    metricsFragment.appendChild(horizontalArrowMetric)
+  }
+
+  const moreInfoModalFragment = document.createDocumentFragment()
+  const moreInfoTriggerBtn = document.createElement('button')
+  moreInfoTriggerBtn.classList.add(styles.moreInfoTriggerBtn)
+  moreInfoTriggerBtn.innerText = '&#9432;'
+  moreInfoTriggerBtn.title = 'More info'
+  moreInfoTriggerBtn.onclick = (e) => {
+    e.stopPropagation()
+    const moreInfoModal = document.createElement('div')
+    moreInfoModal.classList.add(styles.moreInfoModal)
+    moreInfoModal.innerText = 'More info about the selected elements'
+    moreInfoModalFragment.appendChild(moreInfoModal)
+
+    const moreInfoModalOverlay = document.createElement('div')
+    moreInfoModalOverlay.classList.add(styles.moreInfoModalOverlay)
+    moreInfoModalOverlay.onclick = (e) => {
+      e.stopPropagation()
+      metricsFragment.removeChild(moreInfoModalFragment)
     }
-  )
-  metricsFragment.appendChild(verticalArrowMetric)
 
-  const horizontalArrowMetric = generateArrow(
-    frameLeft,
-    frameRight,
-    frameTop,
-    frameBottom,
-    {
-      isVertical: false
-    }
-  )
-  metricsFragment.appendChild(horizontalArrowMetric)
+  }
+  moreInfoModalFragment.appendChild(moreInfoTriggerBtn)
+  metricsFragment.appendChild(moreInfoModalFragment)
 
   return metricsFragment
 }
@@ -123,8 +158,7 @@ const initMetrics = (app: HTMLDivElement) => {
 }
 
 export const initDistanceMeasurer = (app: HTMLDivElement) => {
-  const { paintMetrics } = initMetrics(app)
-
+  const { paintMetrics, removeMetrics } = initMetrics(app)
 
   let isCtrlPressed = false
   let hoveredElement: HTMLElement | null = null
@@ -137,17 +171,6 @@ export const initDistanceMeasurer = (app: HTMLDivElement) => {
   window.addEventListener('keyup', (e) => {
     if (!e.ctrlKey) {
       isCtrlPressed = false
-      // removeMetrics()
-
-      // if (hoveredElement) {
-      //   hoveredElement.classList.remove(hoveredClassName)
-      //   hoveredElement = null
-      // }
-
-      // selectedElements.forEach((el) => {
-      //   el.classList.remove(selectedClassName)
-      // })
-      // selectedElements.clear()
     }
   })
 
@@ -173,8 +196,26 @@ export const initDistanceMeasurer = (app: HTMLDivElement) => {
   })
 
   document.addEventListener('click', (e) => {
+    e.preventDefault()
+    e.stopPropagation()
     const clickedElement = e.target as HTMLElement
-    if (!isCtrlPressed || selectedElements.has(clickedElement)) return
+
+    if (!isCtrlPressed) {
+      removeMetrics()
+
+      if (hoveredElement) {
+        hoveredElement.classList.remove(hoveredClassName)
+        hoveredElement = null
+      }
+
+      selectedElements.forEach((el) => {
+        el.classList.remove(selectedClassName)
+      })
+      selectedElements.clear()
+      return
+    }
+
+    if (selectedElements.has(clickedElement)) return
 
     if (selectedElements.size === 2) {
       const iterator = selectedElements.values()

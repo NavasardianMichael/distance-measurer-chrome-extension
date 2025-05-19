@@ -16,3 +16,7 @@ export const checkUnitTypeRatioToPx = (unitType: UnitType, scale: number, device
 
   return PX_BY_UNITS[unitType] / scale
 }
+
+export const checkAreOnSameLine = (...args: number[]) => {
+  return new Set(args).size !== args.length
+}

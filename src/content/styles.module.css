@@ -6,10 +6,15 @@
 .distance-measurer-extension_selected {
   transition: 0.2s;
   outline: 1px solid gray;
+  background-color: rgba(128, 128, 128, 0.158);
 }
 
 :global(#distance-measurer-extension-root) {
   --color: gray;
+
+  *:hover {
+    cursor: default;
+  }
 
   font-family:
     system-ui,
@@ -25,17 +30,32 @@
     sans-serif;
 
   .frameBorder {
-    position: absolute;
-    background-color: var(--color);
+    position: fixed;
+    z-index: 2147483645;
+    /* background-color: repeating-linear-gradient(var(--color) 3px, red 3px); */
     box-sizing: border-box;
 
     &.frameVerticalBorder {
       width: 1px;
       top: 0;
       bottom: 0;
+      background-image: repeating-linear-gradient(
+        to bottom,
+        var(--color),
+        var(--color) 5px,
+        transparent 5px,
+        transparent 10px
+      );
     }
 
     &.frameHorizontalBorder {
+      background-image: repeating-linear-gradient(
+        to right,
+        var(--color),
+        var(--color) 5px,
+        transparent 5px,
+        transparent 10px
+      );
       height: 1px;
       left: 0;
       right: 0;
@@ -45,13 +65,124 @@
   .metricContainer {
     position: absolute;
 
+    &.metricVertical {
+      .metricValue {
+        bottom: 0;
+        left: 50%;
+        transform: translate(-50%, calc(100% + 4px));
+      }
+    }
+
+    &.metricHorizontal {
+      .metricValue {
+        right: 0;
+        transform: translate(calc(100% + 4px), -50%);
+      }
+    }
+
     .metricLine {
       background-color: var(--color);
     }
 
     .metricValue {
       margin: 0;
-      color: var(--color);
+      background-color: var(--color);
+      color: #fff;
+      box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+      padding: 4px 8px;
+      width: fit-content;
+      position: absolute;
+      z-index: 1;
     }
+  }
+
+  .moreInfoTriggerBtn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: translate(-8px, -8px);
+  }
+
+  .moreInfoModalOverlay {
+    position: fixed;
+    z-index: 2147483646;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.205);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .moreInfoContainer {
+    position: fixed;
+    z-index: 2147483647;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    color: var(--color);
+  }
+
+  .chevron {
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+    position: relative;
+    margin: 20px;
+  }
+
+  /* === UP (uses ::before) === */
+  .chevron-up::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid var(--color);
+    border-left: 2px solid var(--color);
+    transform: translate(-50%, 0%) rotate(45deg);
+  }
+
+  /* === DOWN (uses ::after) === */
+  .chevron-down::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    border-bottom: 2px solid var(--color);
+    border-right: 2px solid var(--color);
+    transform: translate(-50%, 0%) rotate(45deg);
+  }
+
+  /* === LEFT (uses ::before) === */
+  .chevron-left::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid var(--color);
+    border-right: 2px solid var(--color);
+    transform: translate(0%, -50%) rotate(-135deg);
+  }
+
+  /* === RIGHT (uses ::after) === */
+  .chevron-right::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid var(--color);
+    border-right: 2px solid var(--color);
+    transform: translate(0, -50%) rotate(45deg);
   }
 }
