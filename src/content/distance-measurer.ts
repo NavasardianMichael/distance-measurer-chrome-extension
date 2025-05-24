@@ -1,7 +1,6 @@
 import { checkAreOnSameLine } from '_shared/functions/units'
 import styles from './styles.module.css'
 
-
 const hoveredClassName = styles['distance-measurer-extension_hovered']
 const selectedClassName = styles['distance-measurer-extension_selected']
 const lineWidth = 2
@@ -51,36 +50,55 @@ const generateArrow = (
   return metricContainer
 }
 
-
 const constructMetrics = (elementsSet: Set<HTMLElement>) => {
   const elements = Array.from(elementsSet)
 
   const firstElement = elements[0]
-  const { top: firstElementTop, bottom: firstElementBottom, left: firstElementLeft, right: firstElementRight } = firstElement.getBoundingClientRect()
+  const {
+    top: firstElementTop,
+    bottom: firstElementBottom,
+    left: firstElementLeft,
+    right: firstElementRight,
+  } = firstElement.getBoundingClientRect()
   const secondElement = elements[1]
-  const { top: secondElementTop, bottom: secondElementBottom, left: secondElementLeft, right: secondElementRight } = secondElement.getBoundingClientRect()
-  const isVertcallyOnSameLine = checkAreOnSameLine(firstElementTop, firstElementBottom, secondElementTop, secondElementBottom)
-  const isHorizontallyOnSameLine = checkAreOnSameLine(firstElementLeft, firstElementRight, secondElementLeft, secondElementRight)
+  const {
+    top: secondElementTop,
+    bottom: secondElementBottom,
+    left: secondElementLeft,
+    right: secondElementRight,
+  } = secondElement.getBoundingClientRect()
+  const isVerticallyOnSameLine = checkAreOnSameLine(
+    firstElementTop,
+    firstElementBottom,
+    secondElementTop,
+    secondElementBottom
+  )
+  const isHorizontallyOnSameLine = checkAreOnSameLine(
+    firstElementLeft,
+    firstElementRight,
+    secondElementLeft,
+    secondElementRight
+  )
 
   const frameTop = Math.min(firstElementBottom, secondElementBottom)
   const frameBottom = Math.max(firstElementTop, secondElementTop)
   const frameLeft = Math.min(firstElementRight, secondElementRight)
   const frameRight = Math.max(firstElementLeft, secondElementLeft)
 
-  const metricsFragment = document.createDocumentFragment()
+  const metricsContainer = document.createElement('div')
 
-  if (!isVertcallyOnSameLine) {
+  if (!isVerticallyOnSameLine) {
     const frameTopBorder = document.createElement('div')
     frameTopBorder.classList.add(styles.frameBorder)
     frameTopBorder.classList.add(styles.frameHorizontalBorder)
     frameTopBorder.style.top = `${frameTop}px`
-    metricsFragment.appendChild(frameTopBorder)
+    metricsContainer.appendChild(frameTopBorder)
 
     const frameBottomBorder = document.createElement('div')
     frameBottomBorder.classList.add(styles.frameBorder)
     frameBottomBorder.classList.add(styles.frameHorizontalBorder)
     frameBottomBorder.style.top = `${frameBottom}px`
-    metricsFragment.appendChild(frameBottomBorder)
+    metricsContainer.appendChild(frameBottomBorder)
 
     const verticalArrowMetric = generateArrow(
       frameLeft + window.scrollX,
@@ -88,10 +106,10 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
       frameTop + window.scrollY,
       frameBottom + window.scrollY,
       {
-        isVertical: true
+        isVertical: true,
       }
     )
-    metricsFragment.appendChild(verticalArrowMetric)
+    metricsContainer.appendChild(verticalArrowMetric)
   }
 
   if (!isHorizontallyOnSameLine) {
@@ -99,13 +117,13 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
     frameLeftBorder.classList.add(styles.frameBorder)
     frameLeftBorder.classList.add(styles.frameVerticalBorder)
     frameLeftBorder.style.left = `${frameLeft}px`
-    metricsFragment.appendChild(frameLeftBorder)
+    metricsContainer.appendChild(frameLeftBorder)
 
     const frameRightBorder = document.createElement('div')
     frameRightBorder.classList.add(styles.frameBorder)
     frameRightBorder.classList.add(styles.frameVerticalBorder)
     frameRightBorder.style.left = `${frameRight}px`
-    metricsFragment.appendChild(frameRightBorder)
+    metricsContainer.appendChild(frameRightBorder)
 
     const horizontalArrowMetric = generateArrow(
       frameLeft + window.scrollX,
@@ -113,36 +131,40 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
       frameTop + window.scrollY,
       frameBottom + window.scrollY,
       {
-        isVertical: false
+        isVertical: false,
       }
     )
-    metricsFragment.appendChild(horizontalArrowMetric)
+    metricsContainer.appendChild(horizontalArrowMetric)
   }
 
-  const moreInfoModalFragment = document.createDocumentFragment()
+  const moreInfoModalContainer = document.createElement('div')
+  moreInfoModalContainer.classList.add(styles.moreInfoModalContainer)
   const moreInfoTriggerBtn = document.createElement('button')
   moreInfoTriggerBtn.classList.add(styles.moreInfoTriggerBtn)
-  moreInfoTriggerBtn.innerText = '&#9432;'
+  moreInfoTriggerBtn.style.left = `${frameLeft + window.scrollX}px`
+  moreInfoTriggerBtn.style.top = `${frameTop + window.scrollY}px`
   moreInfoTriggerBtn.title = 'More info'
   moreInfoTriggerBtn.onclick = (e) => {
     e.stopPropagation()
-    const moreInfoModal = document.createElement('div')
-    moreInfoModal.classList.add(styles.moreInfoModal)
-    moreInfoModal.innerText = 'More info about the selected elements'
-    moreInfoModalFragment.appendChild(moreInfoModal)
+    const moreInfoModalContent = document.createElement('div')
+    moreInfoModalContent.classList.add(styles.moreInfoModalContent)
+    moreInfoModalContent.innerText = 'More info about the selected elements'
+    moreInfoModalContainer.appendChild(moreInfoModalContent)
 
     const moreInfoModalOverlay = document.createElement('div')
     moreInfoModalOverlay.classList.add(styles.moreInfoModalOverlay)
+    moreInfoModalContainer.appendChild(moreInfoModalOverlay)
     moreInfoModalOverlay.onclick = (e) => {
       e.stopPropagation()
-      metricsFragment.removeChild(moreInfoModalFragment)
+      metricsContainer.removeChild(moreInfoModalContainer)
     }
-
+    metricsContainer.appendChild(moreInfoModalContainer)
   }
-  moreInfoModalFragment.appendChild(moreInfoTriggerBtn)
-  metricsFragment.appendChild(moreInfoModalFragment)
 
-  return metricsFragment
+  moreInfoModalContainer.appendChild(moreInfoTriggerBtn)
+  metricsContainer.appendChild(moreInfoModalContainer)
+
+  return metricsContainer
 }
 
 const initMetrics = (app: HTMLDivElement) => {
