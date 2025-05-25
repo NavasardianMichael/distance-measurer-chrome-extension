@@ -1,3 +1,7 @@
+:global(body:has(#distance-measurer-extension-root)):has(.moreInfoModalContent) {
+  overflow: hidden;
+}
+
 .distance-measurer-extension_hovered {
   transition: 0.1s;
   outline: 1px dashed gray;
@@ -67,7 +71,7 @@
   }
 
   .metricContainer {
-    position: absolute;
+    position: fixed;
 
     &.metricVertical {
       .metricValue {
@@ -121,9 +125,10 @@
       cursor: pointer;
       transition: 0.2s;
       border: none;
+      transform: translate(-50%, -50%);
 
       &:hover {
-        opacity: 0.6;
+        opacity: 0.8;
       }
     }
 
@@ -154,32 +159,42 @@
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         width: 90vw;
-        max-height: 90vh;
+        height: 90vh;
         overflow-y: auto;
 
-        .moreInfoList {
-          margin-left: 20px;
+        .moreInfoModalContentDimensionsContainer {
           display: flex;
-          flex-direction: column;
-          gap: 20px;
+          flex-wrap: wrap;
+          gap: 40px;
 
-          &.moreInfoListHorizontal img {
-            transform: rotate(90deg);
-          }
+          .moreInfoModalContentDimensionsTypeContainer {
+            flex-grow: 1;
+            min-width: 300px;
 
-          .moreInfoListItem {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            text-transform: capitalize;
-
-            .moreInfoListItemContent {
+            .moreInfoList {
               display: flex;
-              align-items: center;
-              gap: 10px;
+              flex-direction: column;
+              gap: 20px;
 
-              & > img {
-                max-width: 80px;
+              &.moreInfoListHorizontal img {
+                transform: rotate(90deg);
+              }
+
+              .moreInfoListItem {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                text-transform: capitalize;
+
+                .moreInfoListItemContent {
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+
+                  & > img {
+                    max-width: 80px;
+                  }
+                }
               }
             }
           }

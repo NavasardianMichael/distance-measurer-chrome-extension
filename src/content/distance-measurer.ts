@@ -155,8 +155,8 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
   moreInfoModalContainer.classList.add(styles.moreInfoModalContainer)
   const moreInfoTriggerBtn = document.createElement('button')
   moreInfoTriggerBtn.classList.add(styles.moreInfoTriggerBtn)
-  moreInfoTriggerBtn.style.left = `${frameLeft + window.scrollX}px`
-  moreInfoTriggerBtn.style.top = `${frameTop + window.scrollY}px`
+  moreInfoTriggerBtn.style.left = `${frameLeft + window.scrollX + Math.abs(frameRight - frameLeft) / 2}px`
+  moreInfoTriggerBtn.style.top = `${frameTop + window.scrollY + Math.abs(frameBottom - frameTop) / 2}px`
   moreInfoTriggerBtn.title = 'More info'
   moreInfoTriggerBtn.innerHTML = '&#9432;'
   moreInfoTriggerBtn.onclick = (e) => {
@@ -169,67 +169,74 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
     const moreInfoModalContent = document.createElement('div')
     moreInfoModalContent.classList.add(styles.moreInfoModalContent)
     moreInfoModalContent.innerHTML = `
-    <h3><strong>Vertical distances</strong></h3>
-    <ul class="${styles.moreInfoList}">
-      <li class="${styles.moreInfoListItem}">
-        <p>Distance From Top of the upper element to the bottom of the lower element</p>
-        <div class="${styles.moreInfoListItemContent}">
-          <img src="${tt_bb_image}" alt="distance" />
-          <p>${+Math.abs(firstElementTop - secondElementBottom).toFixed(2)}px</p>
-        </div>
-      </li>
-      <li class="${styles.moreInfoListItem}">
-        <p>Distance From Top of the upper element to the top of the lower element</p>
-        <div class="${styles.moreInfoListItemContent}">
-          <img src="${tt_bt_image}" alt="distance" />
-          <p>${+Math.abs(firstElementTop - secondElementTop).toFixed(2)}px</p>
-        </div>
-      </li>
-      <li class="${styles.moreInfoListItem}">
-        <p>Distance From Bottom of the upper element to the bottom of the lower element</p>
-        <div class="${styles.moreInfoListItemContent}">
-          <img src="${tb_bb_image}" alt="distance" />
-          <p>${+Math.abs(firstElementBottom - secondElementBottom).toFixed(2)}px</p>
-        </div>
-      </li>
-      <li class="${styles.moreInfoListItem}">
-        <p>Distance From Bottom of the upper element to the top of the lower element</p>
-        <div class="${styles.moreInfoListItemContent}">
-          <img src="${tb_bt_image}" alt="distance" />
-          <p>${+Math.abs(firstElementBottom - secondElementTop).toFixed(2)}px</p>
-        </div>
-      </li>
-    </ul>
-    <h3><strong>Horizontal distances</strong></h3>
-    <ul class="${styles.moreInfoList} ${styles.moreInfoListHorizontal}">
-      <li class="${styles.moreInfoListItem}">
-        <p>Distance From Left of the left element to the right of the right element</p>
-        <div class="${styles.moreInfoListItemContent}">
-          <img src="${tt_bb_image}" alt="distance" />
-          <p>${+Math.abs(firstElementLeft - secondElementRight).toFixed(2)}px</p>
-        </div>
-      </li>
-      <li class="${styles.moreInfoListItem}">
-        <p>Distance From Left of the left element to the left of the right element</p>
-        <div class="${styles.moreInfoListItemContent}">
-          <img src="${tt_bt_image}" alt="distance" />
-          <p>${+Math.abs(firstElementLeft - secondElementLeft).toFixed(2)}px</p>
-        </div>
-      </li>
-      <li class="${styles.moreInfoListItem}">
-        <p>Distance From Right of the left element to the right of the right element</p>
-        <div class="${styles.moreInfoListItemContent}">
-          <img src="${tb_bb_image}" alt="distance" />
-          <p>${+Math.abs(firstElementRight - secondElementRight).toFixed(2)}px</p>
-        </div>
-      </li>
-      <li class="${styles.moreInfoListItem}">
-        <p>Distance From Right of the left element to the left of the right element</p>
-        <div class="${styles.moreInfoListItemContent}">
-          <img src="${tb_bt_image}" alt="distance" />
-          <p>${+Math.abs(firstElementRight - secondElementLeft).toFixed(2)}px</p>
-        </div>
-      </li>
+    <div class="${styles.moreInfoModalContentDimensionsContainer}">
+      <div class="${styles.moreInfoModalContentDimensionsTypeContainer}">
+        <h3><strong>Vertical Dimensions</strong></h3>
+        <ul class="${styles.moreInfoList}">
+          <li class="${styles.moreInfoListItem}">
+            <p>Distance From Top of the element "A" to the bottom of the element "B"</p>
+            <div class="${styles.moreInfoListItemContent}">
+              <img src="${tt_bb_image}" alt="distance" />
+              <p>${+Math.abs(firstElementTop - secondElementBottom).toFixed(2)}px</p>
+            </div>
+          </li>
+          <li class="${styles.moreInfoListItem}">
+            <p>Distance From Top of the element "A" to the top of the element "B"</p>
+            <div class="${styles.moreInfoListItemContent}">
+              <img src="${tt_bt_image}" alt="distance" />
+              <p>${+Math.abs(firstElementTop - secondElementTop).toFixed(2)}px</p>
+            </div>
+          </li>
+          <li class="${styles.moreInfoListItem}">
+            <p>Distance From Bottom of the element "A" to the bottom of the element "B"</p>
+            <div class="${styles.moreInfoListItemContent}">
+              <img src="${tb_bb_image}" alt="distance" />
+              <p>${+Math.abs(firstElementBottom - secondElementBottom).toFixed(2)}px</p>
+            </div>
+          </li>
+          <li class="${styles.moreInfoListItem}">
+            <p>Distance From Bottom of the element "A" to the top of the element "B"</p>
+            <div class="${styles.moreInfoListItemContent}">
+              <img src="${tb_bt_image}" alt="distance" />
+              <p>${+Math.abs(firstElementBottom - secondElementTop).toFixed(2)}px</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="${styles.moreInfoModalContentDimensionsTypeContainer}">
+        <h3><strong>Horizontal Dimensions</strong></h3>
+        <ul class="${styles.moreInfoList} ${styles.moreInfoListHorizontal}">
+          <li class="${styles.moreInfoListItem}">
+            <p>Distance From Left of the element "A" to the right of the element "B"</p>
+            <div class="${styles.moreInfoListItemContent}">
+              <img src="${tt_bb_image}" alt="distance" />
+              <p>${+Math.abs(firstElementLeft - secondElementRight).toFixed(2)}px</p>
+            </div>
+          </li>
+          <li class="${styles.moreInfoListItem}">
+            <p>Distance From Right of the element "A" to the left of the element "B"</p>
+            <div class="${styles.moreInfoListItemContent}">
+              <img src="${tb_bt_image}" alt="distance" />
+              <p>${+Math.abs(firstElementRight - secondElementLeft).toFixed(2)}px</p>
+            </div>
+          </li>
+          <li class="${styles.moreInfoListItem}">
+            <p>Distance From Left of the element "A" to the left of the element "B"</p>
+            <div class="${styles.moreInfoListItemContent}">
+              <img src="${tt_bt_image}" alt="distance" />
+              <p>${+Math.abs(firstElementLeft - secondElementLeft).toFixed(2)}px</p>
+            </div>
+          </li>
+          <li class="${styles.moreInfoListItem}">
+            <p>Distance From Right of the element "A" to the right of the element "B"</p>
+            <div class="${styles.moreInfoListItemContent}">
+              <img src="${tb_bb_image}" alt="distance" />
+              <p>${+Math.abs(firstElementRight - secondElementRight).toFixed(2)}px</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
     `
     moreInfoModalContentContainer.appendChild(moreInfoModalContent)
     moreInfoModalContainer.appendChild(moreInfoModalContentContainer)
@@ -237,13 +244,16 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
     const moreInfoModalOverlay = document.createElement('div')
     moreInfoModalOverlay.classList.add(styles.moreInfoModalOverlay)
     moreInfoModalContentContainer.appendChild(moreInfoModalOverlay)
-    moreInfoModalOverlay.onclick = (e) => {
-      console.log('moreInfoModalOverlay', { e })
 
+    const closeMoreInfoModalBtn = document.createElement('button')
+    closeMoreInfoModalBtn.classList.add(styles.closeMoreInfoModalBtn)
+    closeMoreInfoModalBtn.innerHTML = '&times;'
+    moreInfoModalOverlay.onclick = closeMoreInfoModalBtn.onclick = (e) => {
       e.stopPropagation()
-      metricsContainer.removeChild(moreInfoModalContainer)
+      moreInfoModalContainer.removeChild(moreInfoModalContentContainer)
       state.isMoreInfoModalOpen = false
     }
+
     metricsContainer.appendChild(moreInfoModalContainer)
     state.isMoreInfoModalOpen = true
   }
