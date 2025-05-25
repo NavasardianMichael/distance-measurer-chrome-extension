@@ -159,6 +159,30 @@
 
         .moreInfoList {
           margin-left: 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+
+          &.moreInfoListHorizontal img {
+            transform: rotate(90deg);
+          }
+
+          .moreInfoListItem {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-transform: capitalize;
+
+            .moreInfoListItemContent {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+
+              & > img {
+                max-width: 80px;
+              }
+            }
+          }
         }
       }
     }

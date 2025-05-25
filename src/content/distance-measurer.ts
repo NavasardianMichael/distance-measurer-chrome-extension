@@ -1,4 +1,8 @@
 import { checkAreOnSameLine } from '_shared/functions/units'
+import tb_bb_image from './assets/tb-bb.png'
+import tb_bt_image from './assets/tb-bt.png'
+import tt_bb_image from './assets/tt-bb.png'
+import tt_bt_image from './assets/tt-bt.png'
 import styles from './styles.module.css'
 
 const hoveredClassName = styles['distance-measurer-extension_hovered']
@@ -165,44 +169,67 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
     const moreInfoModalContent = document.createElement('div')
     moreInfoModalContent.classList.add(styles.moreInfoModalContent)
     moreInfoModalContent.innerHTML = `
-    <div style="margin-bottom: 8px;"><strong>Vertical distances</strong></div>
-    <ul class="${styles.moreInfoList}" style="margin-bottom: 16px;">
-      <li>
-        <svg width="24" height="24" style="vertical-align:middle;margin-right:4px;">
-          <line x1="12" y1="2" x2="12" y2="22" stroke="#0078D4" stroke-width="2"/>
-          <polygon points="12,2 8,8 16,8" fill="#0078D4"/>
-          <polygon points="12,22 8,16 16,16" fill="#0078D4"/>
-        </svg>
-        From Top of the top element to the top of the bottom element: <strong>${+Math.abs(firstElementTop - secondElementTop).toFixed(2)}px</strong>
-      </li>
-      <li>
-        <svg width="24" height="24" style="vertical-align:middle;margin-right:4px;">
-          <line x1="12" y1="2" x2="12" y2="22" stroke="#E81123" stroke-width="2"/>
-          <polygon points="12,22 8,16 16,16" fill="#E81123"/>
-          <polygon points="12,2 8,8 16,8" fill="#E81123"/>
-        </svg>
-        From Bottom of the top element to the bottom of the bottom element: <strong>${+Math.abs(firstElementBottom - secondElementBottom).toFixed(2)}px</strong>
-      </li>
-    </ul>
-    <div style="margin-bottom: 8px;"><strong>Horizontal distances</strong></div>
+    <h3><strong>Vertical distances</strong></h3>
     <ul class="${styles.moreInfoList}">
-      <li>
-        <svg width="24" height="24" style="vertical-align:middle;margin-right:4px;">
-          <line x1="2" y1="12" x2="22" y2="12" stroke="#107C10" stroke-width="2"/>
-          <polygon points="2,12 8,8 8,16" fill="#107C10"/>
-          <polygon points="22,12 16,8 16,16" fill="#107C10"/>
-        </svg>
-        From Left of the left element to the left of the right element: <strong>${+Math.abs(firstElementLeft - secondElementLeft).toFixed(2)}px</strong>
+      <li class="${styles.moreInfoListItem}">
+        <p>Distance From Top of the upper element to the bottom of the lower element</p>
+        <div class="${styles.moreInfoListItemContent}">
+          <img src="${tt_bb_image}" alt="distance" />
+          <p>${+Math.abs(firstElementTop - secondElementBottom).toFixed(2)}px</p>
+        </div>
       </li>
-      <li>
-        <svg width="24" height="24" style="vertical-align:middle;margin-right:4px;">
-          <line x1="2" y1="12" x2="22" y2="12" stroke="#B4009E" stroke-width="2"/>
-          <polygon points="22,12 16,8 16,16" fill="#B4009E"/>
-          <polygon points="2,12 8,8 8,16" fill="#B4009E"/>
-        </svg>
-        From Right of the left element to the right of the right element: <strong>${+Math.abs(firstElementRight - secondElementRight).toFixed(2)}px</strong>
+      <li class="${styles.moreInfoListItem}">
+        <p>Distance From Top of the upper element to the top of the lower element</p>
+        <div class="${styles.moreInfoListItemContent}">
+          <img src="${tt_bt_image}" alt="distance" />
+          <p>${+Math.abs(firstElementTop - secondElementTop).toFixed(2)}px</p>
+        </div>
+      </li>
+      <li class="${styles.moreInfoListItem}">
+        <p>Distance From Bottom of the upper element to the bottom of the lower element</p>
+        <div class="${styles.moreInfoListItemContent}">
+          <img src="${tb_bb_image}" alt="distance" />
+          <p>${+Math.abs(firstElementBottom - secondElementBottom).toFixed(2)}px</p>
+        </div>
+      </li>
+      <li class="${styles.moreInfoListItem}">
+        <p>Distance From Bottom of the upper element to the top of the lower element</p>
+        <div class="${styles.moreInfoListItemContent}">
+          <img src="${tb_bt_image}" alt="distance" />
+          <p>${+Math.abs(firstElementBottom - secondElementTop).toFixed(2)}px</p>
+        </div>
       </li>
     </ul>
+    <h3><strong>Horizontal distances</strong></h3>
+    <ul class="${styles.moreInfoList} ${styles.moreInfoListHorizontal}">
+      <li class="${styles.moreInfoListItem}">
+        <p>Distance From Left of the left element to the right of the right element</p>
+        <div class="${styles.moreInfoListItemContent}">
+          <img src="${tt_bb_image}" alt="distance" />
+          <p>${+Math.abs(firstElementLeft - secondElementRight).toFixed(2)}px</p>
+        </div>
+      </li>
+      <li class="${styles.moreInfoListItem}">
+        <p>Distance From Left of the left element to the left of the right element</p>
+        <div class="${styles.moreInfoListItemContent}">
+          <img src="${tt_bt_image}" alt="distance" />
+          <p>${+Math.abs(firstElementLeft - secondElementLeft).toFixed(2)}px</p>
+        </div>
+      </li>
+      <li class="${styles.moreInfoListItem}">
+        <p>Distance From Right of the left element to the right of the right element</p>
+        <div class="${styles.moreInfoListItemContent}">
+          <img src="${tb_bb_image}" alt="distance" />
+          <p>${+Math.abs(firstElementRight - secondElementRight).toFixed(2)}px</p>
+        </div>
+      </li>
+      <li class="${styles.moreInfoListItem}">
+        <p>Distance From Right of the left element to the left of the right element</p>
+        <div class="${styles.moreInfoListItemContent}">
+          <img src="${tb_bt_image}" alt="distance" />
+          <p>${+Math.abs(firstElementRight - secondElementLeft).toFixed(2)}px</p>
+        </div>
+      </li>
     `
     moreInfoModalContentContainer.appendChild(moreInfoModalContent)
     moreInfoModalContainer.appendChild(moreInfoModalContentContainer)
