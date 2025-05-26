@@ -88,6 +88,13 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
     secondElementRight
   )
 
+  const elementsArrangement = {
+    top: (firstElementTop <= secondElementTop ? firstElement : secondElement).getBoundingClientRect(),
+    left: (firstElementLeft <= secondElementLeft ? firstElement : secondElement).getBoundingClientRect(),
+    bottom: (firstElementTop > secondElementTop ? secondElement : firstElement).getBoundingClientRect(),
+    right: (firstElementLeft > secondElementLeft ? secondElement : firstElement).getBoundingClientRect(),
+  }
+
   const frameTop = Math.min(firstElementBottom, secondElementBottom)
   const frameBottom = Math.max(firstElementTop, secondElementTop)
   const frameLeft = Math.min(firstElementRight, secondElementRight)
@@ -160,7 +167,6 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
   moreInfoTriggerBtn.title = 'More info'
   moreInfoTriggerBtn.innerHTML = '&#9432;'
   moreInfoTriggerBtn.onclick = (e) => {
-    console.log('moreInfoTriggerBtn', { e })
     e.stopPropagation()
 
     const moreInfoModalContentContainer = document.createElement('div')
@@ -177,28 +183,28 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
             <p>Distance From Top of the element "A" to the bottom of the element "B"</p>
             <div class="${styles.moreInfoListItemContent}">
               <img src="${tt_bb_image}" alt="distance" />
-              <p>${+Math.abs(firstElementTop - secondElementBottom).toFixed(2)}px</p>
+              <p>${+Math.abs(elementsArrangement.top.top - elementsArrangement.bottom.bottom).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
             <p>Distance From Top of the element "A" to the top of the element "B"</p>
             <div class="${styles.moreInfoListItemContent}">
               <img src="${tt_bt_image}" alt="distance" />
-              <p>${+Math.abs(firstElementTop - secondElementTop).toFixed(2)}px</p>
+              <p>${+Math.abs(elementsArrangement.top.top - elementsArrangement.bottom.top).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
             <p>Distance From Bottom of the element "A" to the bottom of the element "B"</p>
             <div class="${styles.moreInfoListItemContent}">
               <img src="${tb_bb_image}" alt="distance" />
-              <p>${+Math.abs(firstElementBottom - secondElementBottom).toFixed(2)}px</p>
+              <p>${+Math.abs(elementsArrangement.top.bottom - elementsArrangement.bottom.bottom).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
             <p>Distance From Bottom of the element "A" to the top of the element "B"</p>
             <div class="${styles.moreInfoListItemContent}">
               <img src="${tb_bt_image}" alt="distance" />
-              <p>${+Math.abs(firstElementBottom - secondElementTop).toFixed(2)}px</p>
+              <p>${+Math.abs(elementsArrangement.top.bottom - elementsArrangement.bottom.top).toFixed(2)}px</p>
             </div>
           </li>
         </ul>
@@ -210,28 +216,28 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
             <p>Distance From Left of the element "A" to the right of the element "B"</p>
             <div class="${styles.moreInfoListItemContent}">
               <img src="${tt_bb_image}" alt="distance" />
-              <p>${+Math.abs(firstElementLeft - secondElementRight).toFixed(2)}px</p>
+              <p>${+Math.abs(elementsArrangement.left.left - elementsArrangement.right.right).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
             <p>Distance From Right of the element "A" to the left of the element "B"</p>
             <div class="${styles.moreInfoListItemContent}">
               <img src="${tb_bt_image}" alt="distance" />
-              <p>${+Math.abs(firstElementRight - secondElementLeft).toFixed(2)}px</p>
+              <p>${+Math.abs(elementsArrangement.left.right - elementsArrangement.right.left).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
             <p>Distance From Left of the element "A" to the left of the element "B"</p>
             <div class="${styles.moreInfoListItemContent}">
               <img src="${tt_bt_image}" alt="distance" />
-              <p>${+Math.abs(firstElementLeft - secondElementLeft).toFixed(2)}px</p>
+              <p>${+Math.abs(elementsArrangement.left.left - elementsArrangement.right.left).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
             <p>Distance From Right of the element "A" to the right of the element "B"</p>
             <div class="${styles.moreInfoListItemContent}">
               <img src="${tb_bb_image}" alt="distance" />
-              <p>${+Math.abs(firstElementRight - secondElementRight).toFixed(2)}px</p>
+              <p>${+Math.abs(elementsArrangement.left.right - elementsArrangement.right.right).toFixed(2)}px</p>
             </div>
           </li>
         </ul>
@@ -253,7 +259,7 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
       moreInfoModalContainer.removeChild(moreInfoModalContentContainer)
       state.isMoreInfoModalOpen = false
     }
-
+    moreInfoModalContent.appendChild(closeMoreInfoModalBtn)
     metricsContainer.appendChild(moreInfoModalContainer)
     state.isMoreInfoModalOpen = true
   }
@@ -315,7 +321,6 @@ export const initDistanceMeasurer = (app: HTMLDivElement) => {
   })
 
   document.addEventListener('click', (e) => {
-    console.log('click', { e, isCtrlPressed })
     e.preventDefault()
     e.stopPropagation()
     if (state.isMoreInfoModalOpen) return
