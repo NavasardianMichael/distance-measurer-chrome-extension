@@ -11,9 +11,6 @@ const manifest: ManifestV3Export = {
     48: 'src/_shared/icons/icon48.png',
     128: 'src/_shared/icons/icon128.png',
   },
-  background: {
-    service_worker: 'src/background/background.ts',
-  },
   content_scripts: [
     {
       matches: ['<all_urls>'],

@@ -1,4 +1,4 @@
-import html2canvas from 'html2canvas'
+// import html2canvas from 'html2canvas'
 import tb_bb_image from './assets/tb-bb.png'
 import tb_bt_image from './assets/tb-bt.png'
 import tt_bb_image from './assets/tt-bb.png'
@@ -9,24 +9,24 @@ const checkAreOnSameLine = (...args: number[]) => {
   return new Set(args).size !== args.length
 }
 
-const takeViewportScreenshot = async () => {
-  const canvas = await html2canvas(document.body, {
-    width: window.innerWidth,
-    height: window.innerHeight,
-    windowWidth: window.innerWidth,
-    windowHeight: window.innerHeight,
-    scrollX: window.scrollX,
-    scrollY: window.scrollY,
-  })
+// const takeViewportScreenshot = async () => {
+//   const canvas = await html2canvas(document.body, {
+//     width: window.innerWidth,
+//     height: window.innerHeight,
+//     windowWidth: window.innerWidth,
+//     windowHeight: window.innerHeight,
+//     scrollX: window.scrollX,
+//     scrollY: window.scrollY,
+//   })
 
-  const dataUrl = canvas.toDataURL('image/png')
+//   const dataUrl = canvas.toDataURL('image/png')
 
-  // Download it
-  const link = document.createElement('a')
-  link.href = dataUrl
-  link.download = 'viewport-screenshot.png'
-  link.click()
-}
+//   // Download it
+//   const link = document.createElement('a')
+//   link.href = dataUrl
+//   link.download = 'viewport-screenshot.png'
+//   link.click()
+// }
 
 const hoveredClassName = styles['distance-measurer-extension_hovered']
 const selectedClassName = styles['distance-measurer-extension_selected']

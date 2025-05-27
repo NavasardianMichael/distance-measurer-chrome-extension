@@ -4,17 +4,17 @@
 
 .distance-measurer-extension_hovered {
   transition: 0.1s;
-  outline: 1px dashed gray !important;
+  outline: 1px dashed rgb(126, 126, 126) !important;
 }
 
 .distance-measurer-extension_selected {
   transition: 0.2s;
-  outline: 1px solid gray !important;
+  outline: 1px solid rgb(126, 126, 126) !important;
   background: rgba(128, 128, 128, 0.158) !important;
 }
 
 :global(#distance-measurer-extension-root) {
-  --color: gray;
+  --distance-measure-extension__color: rgb(126, 126, 126);
 
   *:hover {
     cursor: default;
@@ -40,7 +40,7 @@
 
   .frameBorder {
     position: fixed;
-    /* background-color: repeating-linear-gradient(var(--color) 3px, red 3px); */
+    /* background-color: repeating-linear-gradient(var(--distance-measure-extension__color) 3px, red 3px); */
     box-sizing: border-box;
 
     &.frameVerticalBorder {
@@ -49,8 +49,8 @@
       bottom: 0;
       background-image: repeating-linear-gradient(
         to bottom,
-        var(--color),
-        var(--color) 5px,
+        var(--distance-measure-extension__color),
+        var(--distance-measure-extension__color) 5px,
         transparent 5px,
         transparent 10px
       );
@@ -59,8 +59,8 @@
     &.frameHorizontalBorder {
       background-image: repeating-linear-gradient(
         to right,
-        var(--color),
-        var(--color) 5px,
+        var(--distance-measure-extension__color),
+        var(--distance-measure-extension__color) 5px,
         transparent 5px,
         transparent 10px
       );
@@ -93,12 +93,12 @@
     }
 
     .metricLine {
-      background-color: var(--color);
+      background-color: var(--distance-measure-extension__color);
     }
 
     .metricValue {
       margin: 0;
-      background-color: var(--color);
+      background-color: var(--distance-measure-extension__color);
       color: #fff;
       box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
       padding: 4px 8px;
@@ -115,11 +115,11 @@
     width: 100vw;
     height: 100vh;
     z-index: 1;
-    color: var(--color);
+    color: var(--distance-measure-extension__color);
 
     .moreInfoTriggerBtn {
       position: absolute;
-      background-color: var(--color);
+      background-color: var(--distance-measure-extension__color);
       color: white;
       border-radius: 100%;
       font-size: 26px;
@@ -158,7 +158,7 @@
         top: 50%;
         transform: translate(-50%, -50%);
         background-color: white;
-        color: var(--color);
+        color: var(--distance-measure-extension__color);
         padding: 20px;
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -170,7 +170,7 @@
           position: absolute;
           top: 20px;
           right: 20px;
-          color: var(--color);
+          color: var(--distance-measure-extension__color);
           background-color: transparent;
           font-size: 30px;
           font-weight: 100;
@@ -240,8 +240,8 @@
     left: 50%;
     width: 8px;
     height: 8px;
-    border-top: 2px solid var(--color);
-    border-left: 2px solid var(--color);
+    border-top: 2px solid var(--distance-measure-extension__color);
+    border-left: 2px solid var(--distance-measure-extension__color);
     transform: translate(-50%, 22%) rotate(45deg);
   }
 
@@ -253,8 +253,8 @@
     left: 50%;
     width: 8px;
     height: 8px;
-    border-bottom: 2px solid var(--color);
-    border-right: 2px solid var(--color);
+    border-bottom: 2px solid var(--distance-measure-extension__color);
+    border-right: 2px solid var(--distance-measure-extension__color);
     transform: translate(-50%, 0%) rotate(45deg);
   }
 
@@ -266,8 +266,8 @@
     left: 0;
     width: 8px;
     height: 8px;
-    border-top: 2px solid var(--color);
-    border-right: 2px solid var(--color);
+    border-top: 2px solid var(--distance-measure-extension__color);
+    border-right: 2px solid var(--distance-measure-extension__color);
     transform: translate(0%, -50%) rotate(-135deg);
   }
 
@@ -279,8 +279,8 @@
     right: 0;
     width: 8px;
     height: 8px;
-    border-top: 2px solid var(--color);
-    border-right: 2px solid var(--color);
+    border-top: 2px solid var(--distance-measure-extension__color);
+    border-right: 2px solid var(--distance-measure-extension__color);
     transform: translate(0, -50%) rotate(45deg);
   }
 }
