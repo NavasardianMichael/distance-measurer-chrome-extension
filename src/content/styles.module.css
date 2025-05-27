@@ -1,16 +1,16 @@
 :global(body:has(#distance-measurer-extension-root)):has(.moreInfoModalContent) {
-  overflow: hidden;
+  overflow: hidden !important;
 }
 
 .distance-measurer-extension_hovered {
   transition: 0.1s;
-  outline: 1px dashed gray;
+  outline: 1px dashed gray !important;
 }
 
 .distance-measurer-extension_selected {
   transition: 0.2s;
-  outline: 1px solid gray;
-  background-color: rgba(128, 128, 128, 0.158);
+  outline: 1px solid gray !important;
+  background: rgba(128, 128, 128, 0.158) !important;
 }
 
 :global(#distance-measurer-extension-root) {
@@ -88,6 +88,10 @@
       }
     }
 
+    .metricValue {
+      border-radius: 2px;
+    }
+
     .metricLine {
       background-color: var(--color);
     }
@@ -121,14 +125,14 @@
       font-size: 26px;
       width: 30px;
       height: 30px;
-      border: none;
       cursor: pointer;
       transition: 0.2s;
       border: none;
+
       transform: translate(-50%, -50%);
 
       &:hover {
-        opacity: 0.8;
+        opacity: 0.9;
       }
     }
 
@@ -161,7 +165,6 @@
         width: 90vw;
         max-height: 90vh;
         overflow-y: auto;
-        opacity: 0.7;
 
         .closeMoreInfoModalBtn {
           position: absolute;
@@ -239,7 +242,7 @@
     height: 8px;
     border-top: 2px solid var(--color);
     border-left: 2px solid var(--color);
-    transform: translate(-50%, 0%) rotate(45deg);
+    transform: translate(-50%, 22%) rotate(45deg);
   }
 
   /* === DOWN (uses ::after) === */

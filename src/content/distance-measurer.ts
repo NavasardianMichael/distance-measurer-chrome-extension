@@ -1,9 +1,32 @@
-import { checkAreOnSameLine } from '_shared/functions/units'
+import html2canvas from 'html2canvas'
 import tb_bb_image from './assets/tb-bb.png'
 import tb_bt_image from './assets/tb-bt.png'
 import tt_bb_image from './assets/tt-bb.png'
 import tt_bt_image from './assets/tt-bt.png'
 import styles from './styles.module.css'
+
+const checkAreOnSameLine = (...args: number[]) => {
+  return new Set(args).size !== args.length
+}
+
+const takeViewportScreenshot = async () => {
+  const canvas = await html2canvas(document.body, {
+    width: window.innerWidth,
+    height: window.innerHeight,
+    windowWidth: window.innerWidth,
+    windowHeight: window.innerHeight,
+    scrollX: window.scrollX,
+    scrollY: window.scrollY,
+  })
+
+  const dataUrl = canvas.toDataURL('image/png')
+
+  // Download it
+  const link = document.createElement('a')
+  link.href = dataUrl
+  link.download = 'viewport-screenshot.png'
+  link.click()
+}
 
 const hoveredClassName = styles['distance-measurer-extension_hovered']
 const selectedClassName = styles['distance-measurer-extension_selected']
@@ -88,17 +111,30 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
     secondElementRight
   )
 
-  const elementsArrangement = {
-    top: (firstElementTop <= secondElementTop ? firstElement : secondElement).getBoundingClientRect(),
-    left: (firstElementLeft <= secondElementLeft ? firstElement : secondElement).getBoundingClientRect(),
-    bottom: (firstElementTop > secondElementTop ? secondElement : firstElement).getBoundingClientRect(),
-    right: (firstElementLeft > secondElementLeft ? secondElement : firstElement).getBoundingClientRect(),
+  const arrangedElements = {
+    top: firstElementTop <= secondElementTop ? firstElement : secondElement,
+    left: firstElementLeft <= secondElementLeft ? firstElement : secondElement,
+    bottom: firstElementBottom > secondElementBottom ? firstElement : secondElement,
+    right: firstElementRight > secondElementRight ? firstElement : secondElement,
   }
+  const arrangedElementsRects = Object.fromEntries(
+    Object.entries(arrangedElements).map(([key, element]) => [key, element.getBoundingClientRect()])
+  )
+  console.log({ arrangedElements, isVerticallyOnSameLine, isHorizontallyOnSameLine })
 
-  const frameTop = Math.min(firstElementBottom, secondElementBottom)
-  const frameBottom = Math.max(firstElementTop, secondElementTop)
-  const frameLeft = Math.min(firstElementRight, secondElementRight)
-  const frameRight = Math.max(firstElementLeft, secondElementLeft)
+  const frameTop = isVerticallyOnSameLine
+    ? Math.min(arrangedElementsRects.top.top, arrangedElementsRects.bottom.top)
+    : arrangedElementsRects.top.bottom
+  const frameBottom = isVerticallyOnSameLine
+    ? Math.max(arrangedElementsRects.top.bottom, arrangedElementsRects.bottom.bottom)
+    : arrangedElementsRects.bottom.top
+  const frameLeft = isHorizontallyOnSameLine
+    ? Math.min(arrangedElementsRects.left.left, arrangedElementsRects.right.left)
+    : arrangedElementsRects.left.right
+  const frameRight = isHorizontallyOnSameLine
+    ? Math.max(arrangedElementsRects.left.right, arrangedElementsRects.right.right)
+    : arrangedElementsRects.right.left
+  console.log({ frameLeft, frameRight, frameTop, frameBottom })
 
   const metricsContainer = document.createElement('div')
   metricsContainer.classList.add(styles.metricsContainer)
@@ -119,15 +155,9 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
     frameBottomBorder.style.top = `${frameBottom}px`
     framesFragment.appendChild(frameBottomBorder)
 
-    const verticalArrowMetric = generateArrow(
-      frameLeft + window.scrollX,
-      frameRight + window.scrollX,
-      frameTop + window.scrollY,
-      frameBottom + window.scrollY,
-      {
-        isVertical: true,
-      }
-    )
+    const verticalArrowMetric = generateArrow(frameLeft, frameRight, frameTop, frameBottom, {
+      isVertical: true,
+    })
     framesFragment.appendChild(verticalArrowMetric)
   }
   metricsContainer.appendChild(framesFragment)
@@ -145,15 +175,9 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
     frameRightBorder.style.left = `${frameRight}px`
     metricsContainer.appendChild(frameRightBorder)
 
-    const horizontalArrowMetric = generateArrow(
-      frameLeft + window.scrollX,
-      frameRight + window.scrollX,
-      frameTop + window.scrollY,
-      frameBottom + window.scrollY,
-      {
-        isVertical: false,
-      }
-    )
+    const horizontalArrowMetric = generateArrow(frameLeft, frameRight, frameTop, frameBottom, {
+      isVertical: false,
+    })
     metricsContainer.appendChild(horizontalArrowMetric)
   }
 
@@ -162,16 +186,15 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
   moreInfoModalContainer.classList.add(styles.moreInfoModalContainer)
   const moreInfoTriggerBtn = document.createElement('button')
   moreInfoTriggerBtn.classList.add(styles.moreInfoTriggerBtn)
-  moreInfoTriggerBtn.style.left = `${frameLeft + window.scrollX + Math.abs(frameRight - frameLeft) / 2}px`
-  moreInfoTriggerBtn.style.top = `${frameTop + window.scrollY + Math.abs(frameBottom - frameTop) / 2}px`
-  moreInfoTriggerBtn.title = 'More info'
+  moreInfoTriggerBtn.style.left = `${Math.min(frameLeft, frameRight) + Math.abs(frameRight - frameLeft) / 2}px`
+  moreInfoTriggerBtn.style.top = `${Math.min(frameTop, frameBottom) + Math.abs(frameBottom - frameTop) / 2}px`
+  moreInfoTriggerBtn.title = 'Discover More About Distance Between Elements'
   moreInfoTriggerBtn.innerHTML = '&#9432;'
   moreInfoTriggerBtn.onclick = (e) => {
     e.stopPropagation()
 
     const moreInfoModalContentContainer = document.createElement('div')
     moreInfoModalContentContainer.classList.add(styles.moreInfoModalContentContainer)
-
     const moreInfoModalContent = document.createElement('div')
     moreInfoModalContent.classList.add(styles.moreInfoModalContent)
     moreInfoModalContent.innerHTML = `
@@ -180,31 +203,31 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
         <h3><strong>Vertical Dimensions</strong></h3>
         <ul class="${styles.moreInfoList}">
           <li class="${styles.moreInfoListItem}">
-            <p>Distance From Top of the element "A" to the bottom of the element "B"</p>
+            <p>Distance From Top of Upper Element to the bottom of the Lower element</p>
             <div class="${styles.moreInfoListItemContent}">
               <img src="${tt_bb_image}" alt="distance" />
-              <p>${+Math.abs(elementsArrangement.top.top - elementsArrangement.bottom.bottom).toFixed(2)}px</p>
+              <p>${+Math.abs(arrangedElementsRects.top.top - arrangedElementsRects.bottom.bottom).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
-            <p>Distance From Top of the element "A" to the top of the element "B"</p>
+            <p>Distance From Top of Upper Element to the top of the Lower element</p>
             <div class="${styles.moreInfoListItemContent}">
               <img src="${tt_bt_image}" alt="distance" />
-              <p>${+Math.abs(elementsArrangement.top.top - elementsArrangement.bottom.top).toFixed(2)}px</p>
+              <p>${+Math.abs(arrangedElementsRects.top.top - arrangedElementsRects.bottom.top).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
-            <p>Distance From Bottom of the element "A" to the bottom of the element "B"</p>
+            <p>Distance From Bottom of Upper Element to the bottom of the Lower element</p>
             <div class="${styles.moreInfoListItemContent}">
               <img src="${tb_bb_image}" alt="distance" />
-              <p>${+Math.abs(elementsArrangement.top.bottom - elementsArrangement.bottom.bottom).toFixed(2)}px</p>
+              <p>${+Math.abs(arrangedElementsRects.top.bottom - arrangedElementsRects.bottom.bottom).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
-            <p>Distance From Bottom of the element "A" to the top of the element "B"</p>
+            <p>Distance From Bottom of Upper Element to the top of the Lower element</p>
             <div class="${styles.moreInfoListItemContent}">
               <img src="${tb_bt_image}" alt="distance" />
-              <p>${+Math.abs(elementsArrangement.top.bottom - elementsArrangement.bottom.top).toFixed(2)}px</p>
+              <p>${+Math.abs(arrangedElementsRects.top.bottom - arrangedElementsRects.bottom.top).toFixed(2)}px</p>
             </div>
           </li>
         </ul>
@@ -213,31 +236,31 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
         <h3><strong>Horizontal Dimensions</strong></h3>
         <ul class="${styles.moreInfoList} ${styles.moreInfoListHorizontal}">
           <li class="${styles.moreInfoListItem}">
-            <p>Distance From Left of the element "A" to the right of the element "B"</p>
+            <p>Distance From Left of the Leftmost element to the right of the Rightmost element</p>
             <div class="${styles.moreInfoListItemContent}">
               <img src="${tt_bb_image}" alt="distance" />
-              <p>${+Math.abs(elementsArrangement.left.left - elementsArrangement.right.right).toFixed(2)}px</p>
+              <p>${+Math.abs(arrangedElementsRects.left.left - arrangedElementsRects.right.right).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
-            <p>Distance From Right of the element "A" to the left of the element "B"</p>
+            <p>Distance From Right of the Leftmost element to the left of the Rightmost element</p>
             <div class="${styles.moreInfoListItemContent}">
               <img src="${tb_bt_image}" alt="distance" />
-              <p>${+Math.abs(elementsArrangement.left.right - elementsArrangement.right.left).toFixed(2)}px</p>
+              <p>${+Math.abs(arrangedElementsRects.left.right - arrangedElementsRects.right.left).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
-            <p>Distance From Left of the element "A" to the left of the element "B"</p>
+            <p>Distance From Left of the Leftmost element to the left of the Rightmost element</p>
             <div class="${styles.moreInfoListItemContent}">
               <img src="${tt_bt_image}" alt="distance" />
-              <p>${+Math.abs(elementsArrangement.left.left - elementsArrangement.right.left).toFixed(2)}px</p>
+              <p>${+Math.abs(arrangedElementsRects.left.left - arrangedElementsRects.right.left).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
-            <p>Distance From Right of the element "A" to the right of the element "B"</p>
+            <p>Distance From Right of the Leftmost element to the right of the Rightmost element</p>
             <div class="${styles.moreInfoListItemContent}">
               <img src="${tb_bb_image}" alt="distance" />
-              <p>${+Math.abs(elementsArrangement.left.right - elementsArrangement.right.right).toFixed(2)}px</p>
+              <p>${+Math.abs(arrangedElementsRects.left.right - arrangedElementsRects.right.right).toFixed(2)}px</p>
             </div>
           </li>
         </ul>
@@ -353,6 +376,9 @@ export const initDistanceMeasurer = (app: HTMLDivElement) => {
     selectedElements.add(clickedElement)
     if (selectedElements.size === 2) {
       paintMetrics(selectedElements)
+      setTimeout(() => {
+        // takeViewportScreenshot()
+      }, 500)
     }
   })
 }

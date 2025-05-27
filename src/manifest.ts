@@ -21,7 +21,6 @@ const manifest: ManifestV3Export = {
     },
   ],
   action: {
-    default_popup: 'src/popup/popup.html',
     default_icon: 'src/_shared/icons/icon.png',
     default_title: 'Ruler Extension',
   },
