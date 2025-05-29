@@ -180,6 +180,7 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
     })
     metricsContainer.appendChild(horizontalArrowMetric)
   }
+  console.log({ tt_bb_image });
 
   // Painting Modal
   const moreInfoModalContainer = document.createElement('div')
@@ -205,28 +206,28 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
           <li class="${styles.moreInfoListItem}">
             <p>Distance From Top of Upper Element to the bottom of the Lower element</p>
             <div class="${styles.moreInfoListItemContent}">
-              <img src="${tt_bb_image}" alt="distance" />
+              <img src="${chrome.runtime.getURL(tt_bb_image)}" alt="distance" />
               <p>${+Math.abs(arrangedElementsRects.top.top - arrangedElementsRects.bottom.bottom).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
             <p>Distance From Top of Upper Element to the top of the Lower element</p>
             <div class="${styles.moreInfoListItemContent}">
-              <img src="${tt_bt_image}" alt="distance" />
+              <img src="${chrome.runtime.getURL(tt_bt_image)}" alt="distance" />
               <p>${+Math.abs(arrangedElementsRects.top.top - arrangedElementsRects.bottom.top).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
             <p>Distance From Bottom of Upper Element to the bottom of the Lower element</p>
             <div class="${styles.moreInfoListItemContent}">
-              <img src="${tb_bb_image}" alt="distance" />
+              <img src="${chrome.runtime.getURL(tb_bb_image)}" alt="distance" />
               <p>${+Math.abs(arrangedElementsRects.top.bottom - arrangedElementsRects.bottom.bottom).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
             <p>Distance From Bottom of Upper Element to the top of the Lower element</p>
             <div class="${styles.moreInfoListItemContent}">
-              <img src="${tb_bt_image}" alt="distance" />
+              <img src="${chrome.runtime.getURL(tb_bt_image)}" alt="distance" />
               <p>${+Math.abs(arrangedElementsRects.top.bottom - arrangedElementsRects.bottom.top).toFixed(2)}px</p>
             </div>
           </li>
@@ -238,28 +239,28 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
           <li class="${styles.moreInfoListItem}">
             <p>Distance From Left of the Leftmost element to the right of the Rightmost element</p>
             <div class="${styles.moreInfoListItemContent}">
-              <img src="${tt_bb_image}" alt="distance" />
+              <img src="${chrome.runtime.getURL(tt_bb_image)}" alt="distance" />
               <p>${+Math.abs(arrangedElementsRects.left.left - arrangedElementsRects.right.right).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
             <p>Distance From Right of the Leftmost element to the left of the Rightmost element</p>
             <div class="${styles.moreInfoListItemContent}">
-              <img src="${tb_bt_image}" alt="distance" />
+              <img src="${chrome.runtime.getURL(tb_bt_image)}" alt="distance" />
               <p>${+Math.abs(arrangedElementsRects.left.right - arrangedElementsRects.right.left).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
             <p>Distance From Left of the Leftmost element to the left of the Rightmost element</p>
             <div class="${styles.moreInfoListItemContent}">
-              <img src="${tt_bt_image}" alt="distance" />
+              <img src="${chrome.runtime.getURL(tt_bt_image)}" alt="distance" />
               <p>${+Math.abs(arrangedElementsRects.left.left - arrangedElementsRects.right.left).toFixed(2)}px</p>
             </div>
           </li>
           <li class="${styles.moreInfoListItem}">
             <p>Distance From Right of the Leftmost element to the right of the Rightmost element</p>
             <div class="${styles.moreInfoListItemContent}">
-              <img src="${tb_bb_image}" alt="distance" />
+              <img src="${chrome.runtime.getURL(tb_bb_image)}" alt="distance" />
               <p>${+Math.abs(arrangedElementsRects.left.right - arrangedElementsRects.right.right).toFixed(2)}px</p>
             </div>
           </li>
@@ -344,8 +345,7 @@ export const initDistanceMeasurer = (app: HTMLDivElement) => {
   })
 
   document.addEventListener('click', (e) => {
-    e.preventDefault()
-    e.stopPropagation()
+
     if (state.isMoreInfoModalOpen) return
     const clickedElement = e.target as HTMLElement
 
@@ -363,6 +363,9 @@ export const initDistanceMeasurer = (app: HTMLDivElement) => {
       selectedElements.clear()
       return
     }
+
+    e.preventDefault()
+    e.stopPropagation()
 
     if (selectedElements.has(clickedElement)) return
 

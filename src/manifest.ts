@@ -4,7 +4,7 @@ import { ManifestV3Export } from '@crxjs/vite-plugin'
 const manifest: ManifestV3Export = {
   name: 'Distance Measurer',
   description: `A simple distance measuring tool for web pages`,
-  version: '1.1.1',
+  version: '1.1.2',
   manifest_version: 3,
   icons: {
     16: 'src/_shared/icons/icon16.png',
@@ -17,11 +17,17 @@ const manifest: ManifestV3Export = {
       js: ['src/content/content.ts'],
     },
   ],
+  "web_accessible_resources": [
+    {
+      "resources": ["src/content/assets/*.png"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   action: {
     default_icon: 'src/_shared/icons/icon.png',
     default_title: 'Ruler Extension',
   },
-  permissions: ['storage'],
+  permissions: ['activeTab'],
 }
 
 export default manifest
