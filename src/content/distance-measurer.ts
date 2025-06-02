@@ -190,7 +190,7 @@ const constructMetrics = (elementsSet: Set<HTMLElement>) => {
   moreInfoTriggerBtn.style.left = `${Math.min(frameLeft, frameRight) + Math.abs(frameRight - frameLeft) / 2}px`
   moreInfoTriggerBtn.style.top = `${Math.min(frameTop, frameBottom) + Math.abs(frameBottom - frameTop) / 2}px`
   moreInfoTriggerBtn.title = 'Discover More About Distance Between Elements'
-  moreInfoTriggerBtn.innerHTML = '&#9432;'
+  moreInfoTriggerBtn.innerHTML = `<div class=${styles.icon}>&#9432;</div>`
   moreInfoTriggerBtn.onclick = (e) => {
     e.stopPropagation()
 
