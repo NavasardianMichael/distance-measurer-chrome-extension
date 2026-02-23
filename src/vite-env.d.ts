@@ -5,3 +5,8 @@ declare module '*.svg' {
     const content: FunctionComponent<SVGAttributes<SVGElement>>
     export default content
 }
+
+declare module '*.svg?url' {
+    const src: string
+    export default src
+}

@@ -16,6 +16,11 @@ export default defineConfig((config) => {
         include: '**/*.svg',
       }),
     ],
+    css: {
+      modules: {
+        generateScopedName: 'distance-measurer-[local]___[hash:base64:5]',
+      },
+    },
     build: {
       sourcemap: true,
     },

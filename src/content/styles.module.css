@@ -1,23 +1,35 @@
+/* Body lock when modal is open (extension root is present) */
 :global(body:has(#distance-measurer-extension-root-dev)):has(.moreInfoModalContent),
 :global(body:has(#distance-measurer-extension-root)):has(.moreInfoModalContent) {
   overflow: hidden !important;
 }
 
-.distance-measurer-extension_hovered {
+/* Applied to page elements outside the extension root — literals only (vars exist inside root).
+   Local names without prefix so generateScopedName yields distance-measurer-extension_* */
+.extension_hovered {
   transition: 0.1s;
-  outline: 1px dashed rgb(126, 126, 126) !important;
+  outline: 1px dashed #18294d !important;
 }
 
-.distance-measurer-extension_selected {
+.extension_selected {
   transition: 0.2s;
-  outline: 1px solid rgb(126, 126, 126) !important;
-  background: rgba(128, 128, 128, 0.158) !important;
+  outline: 1px solid #0d172c !important;
+  background: #11224634 !important;
 }
 
+/* ---------------------------------------------------------------------------
+   All extension UI lives under #distance-measurer-extension-root
+   --------------------------------------------------------------------------- */
 :global(#distance-measurer-extension-root-dev),
 :global(#distance-measurer-extension-root) {
-  --distance-measure-extension__color: rgb(126, 126, 126);
+  /* Theme variables (scoped to this root only) */
+  --distance-measurer_primary-color: #18294d;
+  --distance-measurer_secondary-color: #0d172c;
+  --distance-measurer_contrast-color: #fff;
+  --distance-measurer_overlay-bg: rgba(0, 0, 0, 0.205);
+  --distance-measurer_modal-shadow: rgba(96, 96, 96, 0.25);
 
+  /* Reset for extension content */
   * {
     all: revert;
     font-family:
@@ -44,126 +56,157 @@
     margin-bottom: 0;
   }
 
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+  }
+
+  ::selection {
+    background-color: var(--distance-measurer_primary-color);
+    color: var(--distance-measurer_contrast-color);
+  }
+
+  /* Metrics wrapper: absolute so it scrolls with the page (parent app has height = doc height) */
   .metricsContainer {
-    position: relative;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
     z-index: 2147483647;
   }
 
+  /* Frame borders (dashed lines): absolute, dimensions set in JS for full doc span */
   .frameBorder {
-    position: fixed;
-    /* background-color: repeating-linear-gradient(var(--distance-measure-extension__color) 3px, red 3px); */
+    position: absolute;
     box-sizing: border-box;
 
     &.frameVerticalBorder {
       width: 1px;
       top: 0;
-      bottom: 0;
+      left: 0;
+      right: auto;
       background-image: repeating-linear-gradient(
         to bottom,
-        var(--distance-measure-extension__color),
-        var(--distance-measure-extension__color) 5px,
+        var(--distance-measurer_primary-color),
+        var(--distance-measurer_primary-color) 5px,
         transparent 5px,
         transparent 10px
       );
     }
 
     &.frameHorizontalBorder {
+      height: 1px;
+      left: 0;
+      top: 0;
+      right: auto;
+      bottom: auto;
       background-image: repeating-linear-gradient(
         to right,
-        var(--distance-measure-extension__color),
-        var(--distance-measure-extension__color) 5px,
+        var(--distance-measurer_primary-color),
+        var(--distance-measurer_primary-color) 5px,
         transparent 5px,
         transparent 10px
       );
-      height: 1px;
-      left: 0;
-      right: 0;
     }
   }
 
+  /* Distance labels + line: absolute so they scroll with the page */
   .metricContainer {
-    position: fixed;
-
-    &.metricVertical {
-      .metricValue {
-        bottom: 0;
-        left: 50%;
-        transform: translate(-50%, calc(100% + 4px));
-      }
-    }
-
-    &.metricHorizontal {
-      .metricValue {
-        right: 0;
-        transform: translate(calc(100% + 4px), -50%);
-      }
-    }
-
-    .metricValue {
-      border-radius: 2px;
-    }
+    position: absolute;
 
     .metricLine {
-      background-color: var(--distance-measure-extension__color);
+      background-color: var(--distance-measurer_primary-color);
     }
 
     .metricValue {
       margin: 0;
-      background-color: var(--distance-measure-extension__color);
-      color: #fff;
-      box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-      padding: 4px 8px;
-      width: fit-content;
       position: absolute;
       z-index: 1;
+      padding: 4px 8px;
+      width: fit-content;
+      border-radius: 2px;
+      background-color: var(--distance-measurer_primary-color);
+      color: var(--distance-measurer_contrast-color);
+      box-shadow: 1px 1px 2px var(--distance-measurer_modal-shadow);
+    }
+
+    &.metricVertical .metricValue {
+      bottom: 0;
+      left: 50%;
+      transform: translate(-50%, calc(100% + 4px));
+    }
+
+    &.metricHorizontal .metricValue {
+      right: 0;
+      transform: translate(calc(100% + 4px), -50%);
     }
   }
 
+  /* More-info button + modal: absolute so it scrolls with the page */
   .moreInfoModalContainer {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
+    position: absolute;
+    inset: 0;
     z-index: 1;
-    color: var(--distance-measure-extension__color);
+    color: var(--distance-measurer_primary-color);
 
     .moreInfoTriggerBtn {
       position: absolute;
-      background-color: var(--distance-measure-extension__color);
-      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: none;
       border-radius: 100%;
-      font-size: 26px;
-      width: 33px;
-      height: 33px;
+      font-size: 22px;
+      color: var(--distance-measurer_contrast-color);
+      background-color: var(--distance-measurer_primary-color);
       cursor: pointer;
       transition: 0.2s;
-      border: none;
-      padding: 0;
       transform: translate(-50%, -50%);
+      cursor: pointer;
 
       &:hover {
         opacity: 0.9;
       }
+    }
 
-      .icon {
-        transform: translateY(-2px);
-      }
+    .moreInfoTriggerBtnIcon {
+      width: 18px;
+      height: 18px;
+      display: block;
+      filter: brightness(0) invert(1);
+      cursor: pointer;
     }
 
     .moreInfoModalContentContainer {
       position: absolute;
+      inset: 0;
       width: 100vw;
       height: 100vh;
+    }
+
+    /* When open, modal overlay is mounted on app root with fixed position so it stays in viewport */
+    .moreInfoModalContentContainerFixed {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
 
       .moreInfoModalOverlay {
         position: absolute;
+        inset: 0;
         z-index: 1;
-        top: 0;
-        left: 0;
         width: 100vw;
         height: 100vh;
-        background-color: rgba(0, 0, 0, 0.205);
+        background-color: var(--distance-measurer_overlay-bg);
       }
 
       .moreInfoModalContent {
@@ -172,66 +215,130 @@
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
-        background-color: white;
-        color: var(--distance-measure-extension__color);
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         width: 90vw;
+        max-width: 90vw;
         max-height: 90vh;
+        min-width: 400px;
+        min-height: 200px;
+        padding: 0;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--distance-measurer_contrast-color);
+        color: var(--distance-measurer_primary-color);
+        box-shadow: 0 4px 8px var(--distance-measurer_modal-shadow);
+        resize: none;
+      }
+
+      .moreInfoModalHeader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px 20px 12px;
+        cursor: grab;
+        user-select: none;
+        flex-shrink: 0;
+      }
+
+      .moreInfoModalHeader:active {
+        cursor: grabbing;
+      }
+
+      .closeMoreInfoModalBtn {
+        flex-shrink: 0;
+        padding: 0;
+        border: none;
+        font-size: 28px;
+        line-height: 1;
+        font-weight: 100;
+        color: var(--distance-measurer_secondary-color);
+        background-color: transparent;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+
+      .closeMoreInfoModalBtn:hover {
+        opacity: 0.8;
+      }
+
+      .moreInfoModalBody {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        padding: 0 20px 20px;
         overflow-y: auto;
+        /* Hide scrollbar arrow buttons (e.g. Windows classic scrollbar) */
+        scrollbar-width: thin;
+      }
 
-        .closeMoreInfoModalBtn {
-          position: absolute;
-          top: 20px;
-          right: 20px;
-          color: var(--distance-measure-extension__color);
-          background-color: transparent;
-          font-size: 30px;
-          font-weight: 100;
-          border: none;
-          cursor: pointer;
-          transition: 0.2s;
+      .moreInfoModalBody::-webkit-scrollbar {
+        width: 8px;
+      }
 
-          &:hover {
-            opacity: 0.8;
-          }
-        }
+      .moreInfoModalBody::-webkit-scrollbar-button {
+        display: none;
+        height: 0;
+        width: 0;
+      }
 
-        .moreInfoModalContentDimensionsContainer {
+      .moreInfoModalTitle {
+        margin: 0;
+      }
+
+      .moreInfoModalResizeHandle {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 20px;
+        height: 20px;
+        cursor: nwse-resize;
+        background: transparent;
+        border-bottom: 6px solid var(--distance-measurer_primary-color);
+        border-right: 6px solid var(--distance-measurer_primary-color);
+        flex-shrink: 0;
+      }
+
+      .moreInfoModalResizeHandle:hover {
+        opacity: 0.9;
+      }
+
+      .moreInfoModalBody .moreInfoModalContentDimensionsContainer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 40px;
+      }
+
+      .moreInfoModalContentDimensionsTypeContainer {
+        flex-grow: 1;
+        min-width: 300px;
+
+        .moreInfoList {
           display: flex;
-          flex-wrap: wrap;
-          gap: 40px;
+          flex-direction: column;
+          gap: 20px;
+          padding-left: 0;
 
-          .moreInfoModalContentDimensionsTypeContainer {
-            flex-grow: 1;
-            min-width: 300px;
+          &.moreInfoListHorizontal img {
+            transform: rotate(90deg);
+          }
 
-            .moreInfoList {
+          .moreInfoListItem {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-transform: capitalize;
+
+            .moreInfoListItemContent {
               display: flex;
-              flex-direction: column;
-              gap: 20px;
-              padding-left: 0;
+              align-items: center;
+              gap: 10px;
 
-              &.moreInfoListHorizontal img {
-                transform: rotate(90deg);
-              }
-
-              .moreInfoListItem {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-                text-transform: capitalize;
-
-                .moreInfoListItemContent {
-                  display: flex;
-                  align-items: center;
-                  gap: 10px;
-
-                  & > img {
-                    max-width: 80px;
-                  }
-                }
+              & > img {
+                max-width: 80px;
               }
             }
           }
@@ -239,64 +346,61 @@
       }
     }
   }
+}
 
-  .chevron {
-    width: 12px;
-    height: 12px;
-    display: inline-block;
-    position: relative;
-    margin: 20px;
-  }
+/* Chevron arrows (direction indicators) */
+.chevron {
+  width: 12px;
+  height: 12px;
+  display: inline-block;
+  position: relative;
+  margin: 20px;
+}
 
-  /* === UP (uses ::before) === */
-  .chevron-up::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 8px;
-    height: 8px;
-    border-top: 2px solid var(--distance-measure-extension__color);
-    border-left: 2px solid var(--distance-measure-extension__color);
-    transform: translate(-50%, 22%) rotate(45deg);
-  }
+.chevron-up::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid var(--distance-measurer_primary-color);
+  border-left: 2px solid var(--distance-measurer_primary-color);
+  transform: translate(-50%, 22%) rotate(45deg);
+}
 
-  /* === DOWN (uses ::after) === */
-  .chevron-down::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 8px;
-    height: 8px;
-    border-bottom: 2px solid var(--distance-measure-extension__color);
-    border-right: 2px solid var(--distance-measure-extension__color);
-    transform: translate(-50%, 0%) rotate(45deg);
-  }
+.chevron-down::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-bottom: 2px solid var(--distance-measurer_primary-color);
+  border-right: 2px solid var(--distance-measurer_primary-color);
+  transform: translate(-50%, 0%) rotate(45deg);
+}
 
-  /* === LEFT (uses ::before) === */
-  .chevron-left::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    width: 8px;
-    height: 8px;
-    border-top: 2px solid var(--distance-measure-extension__color);
-    border-right: 2px solid var(--distance-measure-extension__color);
-    transform: translate(0%, -50%) rotate(-135deg);
-  }
+.chevron-left::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid var(--distance-measurer_primary-color);
+  border-right: 2px solid var(--distance-measurer_primary-color);
+  transform: translate(0%, -50%) rotate(-135deg);
+}
 
-  /* === RIGHT (uses ::after) === */
-  .chevron-right::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    right: 0;
-    width: 8px;
-    height: 8px;
-    border-top: 2px solid var(--distance-measure-extension__color);
-    border-right: 2px solid var(--distance-measure-extension__color);
-    transform: translate(0, -50%) rotate(45deg);
-  }
+.chevron-right::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid var(--distance-measurer_primary-color);
+  border-right: 2px solid var(--distance-measurer_primary-color);
+  transform: translate(0, -50%) rotate(45deg);
 }
