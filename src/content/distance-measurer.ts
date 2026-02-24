@@ -1,15 +1,11 @@
 // import html2canvas from 'html2canvas'
+import infoSvgUrl from './assets/info.svg?url'
 import tb_bb_image from './assets/tb-bb.png'
 import tb_bt_image from './assets/tb-bt.png'
 import tt_bb_image from './assets/tt-bb.png'
 import tt_bt_image from './assets/tt-bt.png'
-import infoSvgUrl from './assets/info.svg?url'
+import { MODAL_DIMENSIONS, MODAL_STORAGE_KEYS, MODAL_VIEWPORT_THRESHOLD } from './constants'
 import styles from './styles.module.css'
-import {
-  MODAL_DIMENSIONS,
-  MODAL_STORAGE_KEYS,
-  MODAL_VIEWPORT_THRESHOLD,
-} from './constants'
 
 type ModalBounds = { left: number; top: number; width: number; height: number }
 
@@ -441,7 +437,8 @@ function openMoreInfoModal(options: {
     closeModal()
   }
   contentContainer.appendChild(overlay)
-  appRoot.appendChild(contentContainer)
+  const modalContainer = triggerBtn.parentElement
+  ;(modalContainer ?? appRoot).appendChild(contentContainer)
   state.isMoreInfoModalOpen = true
 }
 
@@ -465,10 +462,8 @@ const constructMetrics = (elementsSet: Set<HTMLElement>, appRoot: HTMLDivElement
   ) as ArrangedRects
 
   // Overlap = ranges intersect. When true we show full span (min..max); when false we show the gap.
-  const isVerticallyOverlapping =
-    arrangedElementsRects.top.bottom > arrangedElementsRects.bottom.top
-  const isHorizontallyOverlapping =
-    arrangedElementsRects.left.right > arrangedElementsRects.right.left
+  const isVerticallyOverlapping = arrangedElementsRects.top.bottom > arrangedElementsRects.bottom.top
+  const isHorizontallyOverlapping = arrangedElementsRects.left.right > arrangedElementsRects.right.left
 
   // Frame bounds (viewport coords); convert to document coords so metrics scroll with page
   const scrollX = window.scrollX
@@ -559,10 +554,7 @@ const constructMetrics = (elementsSet: Set<HTMLElement>, appRoot: HTMLDivElement
     const stored = await getStoredModalBounds()
     const vw = window.innerWidth
     const vh = window.innerHeight
-    const initialBounds =
-      stored != null
-        ? clampModalToViewport(stored, vw, vh)
-        : null
+    const initialBounds = stored != null ? clampModalToViewport(stored, vw, vh) : null
     openMoreInfoModal({
       appRoot,
       triggerBtn: moreInfoTriggerBtn,
