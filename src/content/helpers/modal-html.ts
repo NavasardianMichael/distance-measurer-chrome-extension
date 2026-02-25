@@ -14,12 +14,12 @@ export function buildDistanceModalBodyHtml(rects: ArrangedRects): string {
   const r = rects.right
   return `
     <div class="${styles.moreInfoModalHeader}" data-drag-handle aria-label="Drag to move">
-      <h3 id="distance-measurer-modal-title" class="${styles.moreInfoModalTitle}"><strong>Details About Distance Between Elements</strong></h3>
+      <h3 id="distance-measurer-modal-title" class="${styles.moreInfoModalTitle}">Details About Distance Between Elements</h3>
     </div>
     <div class="${styles.moreInfoModalBody}" id="distance-measurer-modal-desc">
       <div class="${styles.moreInfoModalContentDimensionsContainer}">
         <div class="${styles.moreInfoModalContentDimensionsTypeContainer}">
-          <h4><strong>Vertical Dimensions</strong></h4>
+          <h4>Vertical Dimensions</h4>
           <ul class="${styles.moreInfoList}">
             <li class="${styles.moreInfoListItem}">
               <p>Distance From Top of Upper Element to the bottom of the Lower element</p>
@@ -52,7 +52,7 @@ export function buildDistanceModalBodyHtml(rects: ArrangedRects): string {
           </ul>
         </div>
         <div class="${styles.moreInfoModalContentDimensionsTypeContainer}">
-          <h4><strong>Horizontal Dimensions</strong></h4>
+          <h4>Horizontal Dimensions</h4>
           <ul class="${styles.moreInfoList} ${styles.moreInfoListHorizontal}">
             <li class="${styles.moreInfoListItem}">
               <p>Distance From Left of the Leftmost element to the right of the Rightmost element</p>

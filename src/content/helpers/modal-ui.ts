@@ -3,7 +3,12 @@ import { MODAL_DIMENSIONS } from '@/content/constants/modal'
 import { getExtensionURL } from '@/content/helpers/format'
 import { buildDistanceModalBodyHtml, type ArrangedRects } from '@/content/helpers/modal-html'
 import { makeModalDraggableAndResizable } from '@/content/helpers/modal-drag-resize'
-import { clampModalToViewport, getStoredModalBounds, saveModalBounds } from '@/content/helpers/modal-storage'
+import {
+  clampModalToViewport,
+  getStoredModalBounds,
+  isModalBoundsVisibleInViewport,
+  saveModalBounds,
+} from '@/content/helpers/modal-storage'
 import type { ModalBounds } from '@/content/helpers/modal-storage'
 import styles from '@/content/styles.module.css'
 
@@ -11,6 +16,11 @@ export function createModalOverlay(): HTMLDivElement {
   const overlay = document.createElement('div')
   overlay.classList.add(styles.moreInfoModalOverlay)
   overlay.setAttribute('role', 'presentation')
+  overlay.addEventListener(
+    'wheel',
+    (e) => e.preventDefault(),
+    { passive: false }
+  )
   return overlay
 }
 
@@ -40,10 +50,7 @@ export function createMoreInfoTriggerButton(
   btn.setAttribute('aria-haspopup', 'dialog')
   btn.setAttribute('aria-expanded', 'false')
   const img = document.createElement('img')
-  img.src =
-    typeof chrome !== 'undefined' && chrome.runtime?.getURL
-      ? getExtensionURL('src/content/assets/info.svg')
-      : infoSvgUrl
+  img.src = getExtensionURL(infoSvgUrl)
   img.alt = 'More details about distance between selected elements'
   img.setAttribute('aria-hidden', 'true')
   img.classList.add(styles.moreInfoTriggerBtnIcon)
@@ -117,6 +124,14 @@ export function openMoreInfoModal(options: OpenMoreInfoModalOptions): void {
     e.stopPropagation()
     closeModal()
   }
+  dialog.addEventListener(
+    'wheel',
+    (e) => {
+      if ((e.target as Element).closest(`.${styles.moreInfoModalBody}`)) return
+      e.preventDefault()
+    },
+    { passive: false }
+  )
   contentContainer.appendChild(overlay)
 
   const modalContainer = triggerBtn.parentElement
@@ -127,5 +142,8 @@ export function openMoreInfoModal(options: OpenMoreInfoModalOptions): void {
 export async function getInitialModalBounds(): Promise<ModalBounds | null> {
   const stored = await getStoredModalBounds()
   if (stored == null) return null
-  return clampModalToViewport(stored, window.innerWidth, window.innerHeight)
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  if (!isModalBoundsVisibleInViewport(stored, vw, vh)) return null
+  return clampModalToViewport(stored, vw, vh)
 }

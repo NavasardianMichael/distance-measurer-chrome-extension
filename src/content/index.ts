@@ -110,7 +110,8 @@ export function initDistanceMeasurer(app: HTMLDivElement) {
 
   document.addEventListener('click', (e) => {
     const clickedElement = e.target as HTMLElement
-    if (app.contains(clickedElement)) return
+    const isOnTriggerBtn = clickedElement.closest(`.${styles.moreInfoTriggerBtn}`)
+    if (app.contains(clickedElement) && (isOnTriggerBtn || state.isMoreInfoModalOpen)) return
     if (state.isMoreInfoModalOpen) return
 
     if (!isCtrlPressed) {

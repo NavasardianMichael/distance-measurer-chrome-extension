@@ -2,6 +2,23 @@ import { MODAL_STORAGE_KEYS, MODAL_VIEWPORT_THRESHOLD } from '@/content/constant
 
 export type ModalBounds = { left: number; top: number; width: number; height: number }
 
+/** True if at least `threshold` px of the modal is visible inside the viewport (0,0,vw,vh). */
+export function isModalBoundsVisibleInViewport(
+  bounds: ModalBounds,
+  vw: number,
+  vh: number,
+  threshold: number = MODAL_VIEWPORT_THRESHOLD
+): boolean {
+  const { left, top, width, height } = bounds
+  const visibleLeft = Math.max(0, left)
+  const visibleRight = Math.min(vw, left + width)
+  const visibleTop = Math.max(0, top)
+  const visibleBottom = Math.min(vh, top + height)
+  const visibleWidth = visibleRight - visibleLeft
+  const visibleHeight = visibleBottom - visibleTop
+  return visibleWidth >= threshold && visibleHeight >= threshold
+}
+
 export function clampModalToViewport(
   bounds: ModalBounds,
   vw: number,
