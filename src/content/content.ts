@@ -1,4 +1,4 @@
-import { initDistanceMeasurer } from './distance-measurer'
+import { initDistanceMeasurer } from '@/content/index'
 
 function initReactApp() {
   const container = document.createElement('div')
