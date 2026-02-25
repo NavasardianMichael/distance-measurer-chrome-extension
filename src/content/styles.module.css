@@ -8,7 +8,7 @@
 .extension_selected {
   transition: 0.2s;
   outline: 1px solid #0d172c !important;
-  background: rgba(34, 93, 221, 0) nt;
+  background: rgba(34, 93, 221, 0);
 }
 
 /* ---------------------------------------------------------------------------
@@ -19,9 +19,10 @@
   z-index: 2147483647;
 
   /* Theme variables (scoped to this root only) */
-  --distance-measurer_primary-color: #18294d;
-  --distance-measurer_secondary-color: #0d172c;
-  --distance-measurer_contrast-color: #fff;
+  --distance-measurer_metric-primary-color: #18294d;
+  --distance-measurer_metric-secondary-color: #fff;
+  --distance-measurer_modal-primary-color: #18294d;
+  --distance-measurer_modal-secondary-color: #fff;
   --distance-measurer_overlay-bg: rgba(0, 0, 0, 0.105);
   --distance-measurer_modal-shadow: rgba(96, 96, 96, 0.25);
   --distance-measurer_gray: #8b8b8b;
@@ -60,8 +61,8 @@
   }
 
   ::selection {
-    background-color: var(--distance-measurer_primary-color);
-    color: var(--distance-measurer_contrast-color);
+    background-color: var(--distance-measurer_metric-primary-color);
+    color: var(--distance-measurer_metric-secondary-color);
   }
 
   .appRootWithMetrics {
@@ -81,7 +82,8 @@
     pointer-events: none;
   }
 
-  .appRootWithMetrics .moreInfoModalContainer .moreInfoTriggerBtn {
+  .appRootWithMetrics .moreInfoModalContainer .moreInfoTriggerWrapper,
+  .appRootWithMetrics .moreInfoModalContainer .moreInfoColorPickersContainer {
     pointer-events: auto;
   }
 
@@ -107,8 +109,8 @@
       right: auto;
       background-image: repeating-linear-gradient(
         to bottom,
-        var(--distance-measurer_primary-color),
-        var(--distance-measurer_primary-color) 5px,
+        var(--distance-measurer_metric-primary-color),
+        var(--distance-measurer_metric-primary-color) 5px,
         transparent 5px,
         transparent 10px
       );
@@ -122,8 +124,8 @@
       bottom: auto;
       background-image: repeating-linear-gradient(
         to right,
-        var(--distance-measurer_primary-color),
-        var(--distance-measurer_primary-color) 5px,
+        var(--distance-measurer_metric-primary-color),
+        var(--distance-measurer_metric-primary-color) 5px,
         transparent 5px,
         transparent 10px
       );
@@ -135,7 +137,8 @@
     position: absolute;
 
     .metricLine {
-      background-color: var(--distance-measurer_primary-color);
+      background-color: var(--distance-measurer_metric-primary-color);
+      transition: background-color 0.2s ease;
     }
 
     .metricValue {
@@ -145,9 +148,10 @@
       padding: 4px 8px;
       width: fit-content;
       border-radius: 2px;
-      background-color: var(--distance-measurer_primary-color);
-      color: var(--distance-measurer_contrast-color);
+      background-color: var(--distance-measurer_metric-primary-color);
+      color: var(--distance-measurer_metric-secondary-color);
       box-shadow: 1px 1px 2px var(--distance-measurer_modal-shadow);
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
 
     &.metricVertical .metricValue {
@@ -162,13 +166,58 @@
     }
   }
 
-  /* More-info button + modal: z-index 2, auto size (only the trigger button is inside) */
+  /* More-info button + modal: z-index 2, auto size (trigger + color pickers in wrapper) */
   .moreInfoModalContainer {
     position: absolute;
     left: 0;
     top: 0;
     z-index: 2;
-    color: var(--distance-measurer_primary-color);
+    color: var(--distance-measurer_metric-primary-color);
+    transition: color 0.2s ease;
+
+    .moreInfoColorPickersContainer {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      z-index: 2;
+    }
+
+    .moreInfoTriggerWrapper {
+      position: absolute;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      transform: translate(-50%, -50%);
+    }
+
+    .metricColorPicker {
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .metricColorPicker::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    .metricColorPicker::-webkit-color-swatch {
+      border: 1px solid var(--distance-measurer_gray);
+      border-radius: 4px;
+    }
+
+    .moreInfoTriggerWrapper .moreInfoTriggerBtn {
+      position: static;
+      transform: none;
+    }
 
     .moreInfoTriggerBtn {
       position: absolute;
@@ -181,10 +230,10 @@
       border: none;
       border-radius: 100%;
       font-size: 22px;
-      color: var(--distance-measurer_contrast-color);
-      background-color: var(--distance-measurer_primary-color);
+      color: var(--distance-measurer_metric-secondary-color);
+      background-color: var(--distance-measurer_metric-primary-color);
       cursor: pointer;
-      transition: 0.2s;
+      transition: color 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
       transform: translate(-50%, -50%);
 
       &:hover {
@@ -210,21 +259,25 @@
       left: 0;
       top: 0;
     }
+  }
 
-    /* When open, mounted on app root: container is minimal; only overlay is full screen */
-    .moreInfoModalContentContainerFixed {
+  /* When open, full viewport overlay/dialog; must be under root but not under transformed parent (e.g. trigger wrapper) */
+  .moreInfoModalContentContainerFixed {
       position: fixed;
-      left: 0;
-      top: 0;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
       z-index: 1;
+      pointer-events: none;
 
       .moreInfoModalOverlay {
-        position: fixed;
+        position: absolute;
         inset: 0;
         z-index: 1;
-        width: 100vw;
-        height: 100vh;
+        width: 100%;
+        height: 100%;
         background-color: var(--distance-measurer_overlay-bg);
+        pointer-events: auto;
       }
 
       .moreInfoModalContent {
@@ -243,16 +296,22 @@
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        background-color: var(--distance-measurer_contrast-color);
-        color: var(--distance-measurer_primary-color);
+        background-color: var(--distance-measurer_modal-secondary-color);
+        color: var(--distance-measurer_modal-primary-color);
         box-shadow: 0 4px 8px var(--distance-measurer_modal-shadow);
         resize: none;
         cursor: grab;
         pointer-events: auto;
-        transition: box-shadow 0.2s;
+        transition:
+          box-shadow 0.2s,
+          opacity 0.2s;
+
+        &:has(.dimModalBtn:hover) {
+          opacity: 0.1;
+        }
 
         &:hover {
-          *:not(.moreInfoModalResizeHandle):not(.closeMoreInfoModalBtn) {
+          *:not(.moreInfoModalResizeHandle):not(.closeMoreInfoModalBtn):not(.closeMoreInfoModalBtn *):not(.dimModalBtn):not(.dimModalBtn *) {
             cursor: grab;
           }
 
@@ -271,24 +330,63 @@
         justify-content: space-between;
         gap: 12px;
         padding: 20px 12px;
-        border-bottom: 1px solid var(--distance-measurer_primary-color);
+        border-bottom: 1px solid var(--distance-measurer_modal-primary-color);
         cursor: grab;
         user-select: none;
         flex-shrink: 0;
       }
 
-      .moreInfoModalHeader .closeMoreInfoModalBtn {
+      .moreInfoModalHeaderActions {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+        flex-shrink: 0;
+      }
+
+      .moreInfoModalHeaderActions .closeMoreInfoModalBtn,
+      .moreInfoModalHeaderActions .closeMoreInfoModalBtn *,
+      .moreInfoModalHeaderActions .dimModalBtn,
+      .moreInfoModalHeaderActions .dimModalBtn * {
         cursor: pointer;
+      }
+
+      .dimModalBtn {
+        flex-shrink: 0;
+        padding: 0;
+        border: none;
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--distance-measurer_modal-primary-color);
+        background-color: transparent;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+
+      .dimModalBtn:hover {
+        opacity: 0.8;
+      }
+
+      .dimModalBtnIcon {
+        display: block;
+        width: 22px;
+        height: 22px;
+        object-fit: contain;
       }
 
       .closeMoreInfoModalBtn {
         flex-shrink: 0;
         padding: 0;
         border: none;
-        font-size: 28px;
-        line-height: 1;
-        font-weight: 100;
-        color: var(--distance-measurer_secondary-color);
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--distance-measurer_modal-primary-color);
         background-color: transparent;
         cursor: pointer;
         transition: 0.2s;
@@ -296,6 +394,13 @@
 
       .closeMoreInfoModalBtn:hover {
         opacity: 0.8;
+      }
+
+      .closeMoreInfoModalBtnIcon {
+        display: block;
+        width: 22px;
+        height: 22px;
+        object-fit: contain;
       }
 
       .moreInfoModalBody {
@@ -399,7 +504,6 @@
         }
       }
     }
-  }
 }
 
 /* Chevron arrows (direction indicators) */
@@ -418,9 +522,10 @@
   left: 50%;
   width: 8px;
   height: 8px;
-  border-top: 2px solid var(--distance-measurer_primary-color);
-  border-left: 2px solid var(--distance-measurer_primary-color);
+  border-top: 2px solid var(--distance-measurer_metric-primary-color);
+  border-left: 2px solid var(--distance-measurer_metric-primary-color);
   transform: translate(-50%, 22%) rotate(45deg);
+  transition: border-color 0.2s ease;
 }
 
 .chevron-down::after {
@@ -430,9 +535,10 @@
   left: 50%;
   width: 8px;
   height: 8px;
-  border-bottom: 2px solid var(--distance-measurer_primary-color);
-  border-right: 2px solid var(--distance-measurer_primary-color);
+  border-bottom: 2px solid var(--distance-measurer_metric-primary-color);
+  border-right: 2px solid var(--distance-measurer_metric-primary-color);
   transform: translate(-50%, 0%) rotate(45deg);
+  transition: border-color 0.2s ease;
 }
 
 .chevron-left::before {
@@ -442,9 +548,10 @@
   left: 0;
   width: 8px;
   height: 8px;
-  border-top: 2px solid var(--distance-measurer_primary-color);
-  border-right: 2px solid var(--distance-measurer_primary-color);
+  border-top: 2px solid var(--distance-measurer_metric-primary-color);
+  border-right: 2px solid var(--distance-measurer_metric-primary-color);
   transform: translate(0%, -50%) rotate(-135deg);
+  transition: border-color 0.2s ease;
 }
 
 .chevron-right::after {
@@ -454,7 +561,8 @@
   right: 0;
   width: 8px;
   height: 8px;
-  border-top: 2px solid var(--distance-measurer_primary-color);
-  border-right: 2px solid var(--distance-measurer_primary-color);
+  border-top: 2px solid var(--distance-measurer_metric-primary-color);
+  border-right: 2px solid var(--distance-measurer_metric-primary-color);
   transform: translate(0, -50%) rotate(45deg);
+  transition: border-color 0.2s ease;
 }

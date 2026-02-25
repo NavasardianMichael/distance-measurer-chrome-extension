@@ -1,5 +1,6 @@
 import { METRIC_LINE_WIDTH } from '@/content/constants/measurement'
 import { formatPx } from '@/content/helpers/format'
+import { createMetricColorPickers } from '@/content/helpers/metric-colors'
 import type { ArrangedRects } from '@/content/helpers/modal-html'
 import { createMoreInfoTriggerButton, getInitialModalBounds, openMoreInfoModal } from '@/content/helpers/modal-ui'
 import styles from '@/content/styles.module.css'
@@ -174,14 +175,30 @@ export function createMoreInfoModalContainer(
   onModalOpened?: () => void
 ): HTMLDivElement {
   const { frameLeftDoc, frameRightDoc, frameTopDoc, frameBottomDoc } = frameCoords
+  const centerX = Math.min(frameLeftDoc, frameRightDoc) + Math.abs(frameRightDoc - frameLeftDoc) / 2
+  const centerY = Math.min(frameTopDoc, frameBottomDoc) + Math.abs(frameBottomDoc - frameTopDoc) / 2
+
   const modalContainer = document.createElement('div')
   modalContainer.classList.add(styles.moreInfoModalContainer)
+
+  const pickersContainer = document.createElement('div')
+  pickersContainer.innerHTML = '<span>Color Palette </span>'
+  pickersContainer.classList.add(styles.moreInfoColorPickersContainer)
+  const { primaryPicker, secondaryPicker } = createMetricColorPickers(appRoot, styles.metricColorPicker)
+  pickersContainer.appendChild(primaryPicker)
+  pickersContainer.appendChild(secondaryPicker)
+
+  const wrapper = document.createElement('div')
+  wrapper.classList.add(styles.moreInfoTriggerWrapper)
+  wrapper.style.left = `${centerX}px`
+  wrapper.style.top = `${centerY}px`
 
   const triggerBtn = createMoreInfoTriggerButton(
     frameLeftDoc,
     frameRightDoc,
     frameTopDoc,
-    frameBottomDoc
+    frameBottomDoc,
+    { centered: false }
   )
   triggerBtn.onclick = async () => {
     const initialBounds = await getInitialModalBounds()
@@ -194,6 +211,9 @@ export function createMoreInfoModalContainer(
       onOpened: onModalOpened,
     })
   }
-  modalContainer.appendChild(triggerBtn)
+
+  wrapper.appendChild(triggerBtn)
+  modalContainer.appendChild(pickersContainer)
+  modalContainer.appendChild(wrapper)
   return modalContainer
 }

@@ -1,3 +1,5 @@
+import closeSvgUrl from '@/content/assets/close.svg?url'
+import eyeSvgUrl from '@/content/assets/eye.svg?url'
 import infoSvgUrl from '@/content/assets/info.svg?url'
 import { MODAL_DIMENSIONS } from '@/content/constants/modal'
 import { getExtensionURL } from '@/content/helpers/format'
@@ -6,7 +8,6 @@ import { makeModalDraggableAndResizable } from '@/content/helpers/modal-drag-res
 import {
   clampModalToViewport,
   getStoredModalBounds,
-  isModalBoundsVisibleInViewport,
   saveModalBounds,
 } from '@/content/helpers/modal-storage'
 import type { ModalBounds } from '@/content/helpers/modal-storage'
@@ -28,8 +29,27 @@ export function createModalCloseButton(): HTMLButtonElement {
   const btn = document.createElement('button')
   btn.type = 'button'
   btn.classList.add(styles.closeMoreInfoModalBtn)
-  btn.innerHTML = '&times;'
   btn.setAttribute('aria-label', 'Close modal')
+  const img = document.createElement('img')
+  img.src = getExtensionURL(closeSvgUrl)
+  img.alt = ''
+  img.setAttribute('aria-hidden', 'true')
+  img.classList.add(styles.closeMoreInfoModalBtnIcon)
+  btn.appendChild(img)
+  return btn
+}
+
+export function createDimModalButton(): HTMLButtonElement {
+  const btn = document.createElement('button')
+  btn.type = 'button'
+  btn.classList.add(styles.dimModalBtn)
+  btn.setAttribute('aria-label', 'Dim modal to see page behind')
+  const img = document.createElement('img')
+  img.src = getExtensionURL(eyeSvgUrl)
+  img.alt = ''
+  img.setAttribute('aria-hidden', 'true')
+  img.classList.add(styles.dimModalBtnIcon)
+  btn.appendChild(img)
   return btn
 }
 
@@ -37,14 +57,18 @@ export function createMoreInfoTriggerButton(
   frameLeft: number,
   frameRight: number,
   frameTop: number,
-  frameBottom: number
+  frameBottom: number,
+  options?: { centered?: boolean }
 ): HTMLButtonElement {
+  const centered = options?.centered !== false
   const btn = document.createElement('button')
   btn.type = 'button'
   btn.classList.add(styles.moreInfoTriggerBtn)
-  btn.classList.add(styles.moreInfoTriggerBtnCentered)
-  btn.style.setProperty('--trigger-left', `${Math.min(frameLeft, frameRight) + Math.abs(frameRight - frameLeft) / 2}px`)
-  btn.style.setProperty('--trigger-top', `${Math.min(frameTop, frameBottom) + Math.abs(frameBottom - frameTop) / 2}px`)
+  if (centered) {
+    btn.classList.add(styles.moreInfoTriggerBtnCentered)
+    btn.style.setProperty('--trigger-left', `${Math.min(frameLeft, frameRight) + Math.abs(frameRight - frameLeft) / 2}px`)
+    btn.style.setProperty('--trigger-top', `${Math.min(frameTop, frameBottom) + Math.abs(frameBottom - frameTop) / 2}px`)
+  }
   btn.title = 'Discover More About Distance Between Elements'
   btn.setAttribute('aria-label', 'Discover more about distance between elements')
   btn.setAttribute('aria-haspopup', 'dialog')
@@ -83,13 +107,29 @@ export function openMoreInfoModal(options: OpenMoreInfoModalOptions): void {
   dialog.setAttribute('aria-modal', 'true')
   dialog.setAttribute('aria-labelledby', 'distance-measurer-modal-title')
   dialog.setAttribute('aria-describedby', 'distance-measurer-modal-desc')
+  if (initialBounds) {
+    dialog.style.left = `${initialBounds.left}px`
+    dialog.style.top = `${initialBounds.top}px`
+    dialog.style.transform = 'none'
+    dialog.style.width = `${Math.max(MODAL_DIMENSIONS.MIN_WIDTH, initialBounds.width)}px`
+    dialog.style.height = `${Math.max(MODAL_DIMENSIONS.MIN_HEIGHT, initialBounds.height)}px`
+  }
   dialog.innerHTML = buildDistanceModalBodyHtml(rects)
   contentContainer.appendChild(dialog)
 
   const closeBtn = createModalCloseButton()
+  const dimBtn = createDimModalButton()
+  const headerActions = document.createElement('div')
+  headerActions.classList.add(styles.moreInfoModalHeaderActions)
+  headerActions.appendChild(dimBtn)
+  headerActions.appendChild(closeBtn)
+
   const header = dialog.querySelector<HTMLElement>(`[data-drag-handle]`)
-  if (header) header.appendChild(closeBtn)
-  else dialog.appendChild(closeBtn)
+  if (header) {
+    header.appendChild(headerActions)
+  } else {
+    dialog.appendChild(headerActions)
+  }
 
   const resizeHandle = document.createElement('div')
   resizeHandle.classList.add(styles.moreInfoModalResizeHandle)
@@ -134,8 +174,8 @@ export function openMoreInfoModal(options: OpenMoreInfoModalOptions): void {
   )
   contentContainer.appendChild(overlay)
 
-  const modalContainer = triggerBtn.parentElement
-  ;(modalContainer ?? appRoot).appendChild(contentContainer)
+  /* Append to appRoot so overlay/dialog are viewport-relative (trigger wrapper has transform, which would create a containing block) */
+  appRoot.appendChild(contentContainer)
   onOpened?.()
 }
 
@@ -144,6 +184,5 @@ export async function getInitialModalBounds(): Promise<ModalBounds | null> {
   if (stored == null) return null
   const vw = window.innerWidth
   const vh = window.innerHeight
-  if (!isModalBoundsVisibleInViewport(stored, vw, vh)) return null
   return clampModalToViewport(stored, vw, vh)
 }

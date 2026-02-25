@@ -1,3 +1,4 @@
+import { applyStoredMetricColors } from '@/content/helpers/metric-colors'
 import { createMetricsContainer, createMoreInfoModalContainer, computeArrangedRects } from '@/content/helpers/metrics'
 import styles from '@/content/styles.module.css'
 
@@ -8,7 +9,7 @@ const state = { isMoreInfoModalOpen: false }
 
 function initMetrics(app: HTMLDivElement) {
   return {
-    paintMetrics(elements: Set<HTMLElement>) {
+    async paintMetrics(elements: Set<HTMLElement>) {
       app.innerHTML = ''
       app.classList.add(styles.appRootWithMetrics)
       app.style.height = `${document.documentElement.scrollHeight}px`
@@ -16,6 +17,8 @@ function initMetrics(app: HTMLDivElement) {
       const elArr = Array.from(elements)
       if (elArr.length !== 2) return
       const [first, second] = elArr as [HTMLElement, HTMLElement]
+
+      await applyStoredMetricColors(app)
 
       const { arrangedRects, frameCoords } = computeArrangedRects([first, second])
 
@@ -110,8 +113,10 @@ export function initDistanceMeasurer(app: HTMLDivElement) {
 
   document.addEventListener('click', (e) => {
     const clickedElement = e.target as HTMLElement
-    const isOnTriggerBtn = clickedElement.closest(`.${styles.moreInfoTriggerBtn}`)
-    if (app.contains(clickedElement) && (isOnTriggerBtn || state.isMoreInfoModalOpen)) return
+    const isOnTriggerOrPicker = clickedElement.closest(
+      `.${styles.moreInfoTriggerBtn}, .${styles.metricColorPicker}, .${styles.moreInfoTriggerWrapper}, .${styles.moreInfoColorPickersContainer}`
+    )
+    if (app.contains(clickedElement) && (isOnTriggerOrPicker || state.isMoreInfoModalOpen)) return
     if (state.isMoreInfoModalOpen) return
 
     if (!isCtrlPressed) {
@@ -134,6 +139,6 @@ export function initDistanceMeasurer(app: HTMLDivElement) {
     }
     clickedElement.classList.add(selectedClassName)
     selectedElements.add(clickedElement)
-    if (selectedElements.size === 2) paintMetrics(selectedElements)
+    if (selectedElements.size === 2) void paintMetrics(selectedElements)
   })
 }

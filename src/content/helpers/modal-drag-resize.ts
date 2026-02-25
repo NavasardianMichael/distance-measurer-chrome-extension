@@ -37,7 +37,8 @@ export function makeModalDraggableAndResizable(
     applySize(initialBounds.width, initialBounds.height)
   }
 
-  const notifyBounds = () => {
+  /** Persist modal position and size to storage (same pattern as metric colors). Called on mouseup after drag or resize. */
+  const saveBoundsToStorage = () => {
     const rect = dialog.getBoundingClientRect()
     saveModalBounds({
       left: Math.round(rect.left),
@@ -49,7 +50,9 @@ export function makeModalDraggableAndResizable(
   }
 
   const isExcludedTarget = (el: HTMLElement) =>
-    el.closest(`.${styles.closeMoreInfoModalBtn}`) || el.closest(`.${styles.moreInfoModalResizeHandle}`)
+    el.closest(`.${styles.closeMoreInfoModalBtn}`) ||
+    el.closest(`.${styles.dimModalBtn}`) ||
+    el.closest(`.${styles.moreInfoModalResizeHandle}`)
 
   const onDialogMouseDown = (e: MouseEvent) => {
     if (isExcludedTarget(e.target as HTMLElement)) return
@@ -71,7 +74,7 @@ export function makeModalDraggableAndResizable(
       dialog.classList.remove(styles.moreInfoModalContentDragging)
       document.removeEventListener('mousemove', onMove)
       document.removeEventListener('mouseup', onUp)
-      notifyBounds()
+      saveBoundsToStorage()
     }
     document.addEventListener('mousemove', onMove)
     document.addEventListener('mouseup', onUp)
@@ -96,7 +99,7 @@ export function makeModalDraggableAndResizable(
     const onUp = () => {
       document.removeEventListener('mousemove', onMove)
       document.removeEventListener('mouseup', onUp)
-      notifyBounds()
+      saveBoundsToStorage()
     }
     document.addEventListener('mousemove', onMove)
     document.addEventListener('mouseup', onUp)
