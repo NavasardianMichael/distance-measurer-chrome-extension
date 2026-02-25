@@ -16,7 +16,8 @@
    --------------------------------------------------------------------------- */
 :global(#distance-measurer-extension-root-dev),
 :global(#distance-measurer-extension-root) {
-  z-index: 2147483647;
+  position: relative !important;
+  z-index: 2147483647 !important;
 
   /* Theme variables (scoped to this root only) */
   --distance-measurer_metric-primary-color: #18294d;
@@ -42,6 +43,19 @@
       'Open Sans',
       'Helvetica Neue',
       sans-serif;
+  }
+
+  p,
+  h1,
+  h2,
+  h3 h4,
+  h5,
+  h6,
+  button,
+  input,
+  span,
+  div {
+    font-size: 16px !important;
   }
 
   p,
