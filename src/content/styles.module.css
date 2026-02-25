@@ -288,8 +288,13 @@
     }
   }
 
+  /* Same specificity as .moreInfoModalContent:hover * so this wins when both apply (dragging) */
+  .moreInfoModalContent.moreInfoModalContentDragging,
+  .moreInfoModalContent.moreInfoModalContentDragging *:not(.moreInfoModalResizeHandle):not(.closeMoreInfoModalBtn):not(.closeMoreInfoModalBtn *):not(.dimModalBtn):not(.dimModalBtn *) {
+    cursor: grabbing !important;
+  }
+
   .moreInfoModalContentDragging {
-    cursor: grabbing;
     user-select: none;
   }
 

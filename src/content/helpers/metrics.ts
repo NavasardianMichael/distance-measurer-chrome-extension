@@ -113,6 +113,8 @@ export function createMetricsContainer(options: CreateMetricsContainerOptions): 
 
   const container = document.createElement('div')
   container.classList.add(styles.metricsContainer)
+  container.setAttribute('role', 'region')
+  container.setAttribute('aria-label', 'Distance measurement between selected elements')
 
   if (!isVerticallyOverlapping) {
     container.appendChild(createFrameBorder('horizontal', frameTopDoc, 0, docWidth))
@@ -208,7 +210,11 @@ function createArrowMetric(
 export function createColorPaletteBlock(appRoot: HTMLDivElement): HTMLDivElement {
   const block = document.createElement('div')
   block.classList.add(styles.colorPaletteBlock)
-  block.innerHTML = '<span>Color Palette </span>'
+  block.setAttribute('role', 'group')
+  block.setAttribute('aria-label', 'Metric color palette')
+  const label = document.createElement('span')
+  label.textContent = 'Color Palette '
+  block.appendChild(label)
   const { primaryPicker, secondaryPicker } = createMetricColorPickers(appRoot, styles.metricColorPicker)
   block.appendChild(primaryPicker)
   block.appendChild(secondaryPicker)

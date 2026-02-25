@@ -13,10 +13,21 @@ import {
 import type { ModalBounds } from '@/content/helpers/modal-storage'
 import styles from '@/content/styles.module.css'
 
+/** Focusable selector for modal focus trap (buttons, links, inputs, and elements with tabindex ≥ 0). */
+const FOCUSABLE_SELECTOR =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+function getFocusableElements(container: HTMLElement): HTMLElement[] {
+  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+    (el) => el.offsetParent !== null && !el.hasAttribute('aria-hidden')
+  )
+}
+
 export function createModalOverlay(): HTMLDivElement {
   const overlay = document.createElement('div')
   overlay.classList.add(styles.moreInfoModalOverlay)
   overlay.setAttribute('role', 'presentation')
+  overlay.setAttribute('aria-hidden', 'true')
   overlay.addEventListener(
     'wheel',
     (e) => e.preventDefault(),
@@ -103,6 +114,7 @@ export function openMoreInfoModal(options: OpenMoreInfoModalOptions): void {
   dialog.setAttribute('aria-modal', 'true')
   dialog.setAttribute('aria-labelledby', 'distance-measurer-modal-title')
   dialog.setAttribute('aria-describedby', 'distance-measurer-modal-desc')
+  dialog.setAttribute('tabindex', '-1')
   if (initialBounds) {
     dialog.style.left = `${initialBounds.left}px`
     dialog.style.top = `${initialBounds.top}px`
@@ -128,7 +140,9 @@ export function openMoreInfoModal(options: OpenMoreInfoModalOptions): void {
 
   const resizeHandle = document.createElement('div')
   resizeHandle.classList.add(styles.moreInfoModalResizeHandle)
-  resizeHandle.setAttribute('aria-label', 'Resize')
+  resizeHandle.setAttribute('role', 'separator')
+  resizeHandle.setAttribute('aria-orientation', 'horizontal')
+  resizeHandle.setAttribute('aria-label', 'Resize modal')
   dialog.appendChild(resizeHandle)
 
   makeModalDraggableAndResizable(dialog, {
@@ -137,6 +151,8 @@ export function openMoreInfoModal(options: OpenMoreInfoModalOptions): void {
     minHeight: MODAL_DIMENSIONS.MIN_HEIGHT,
     initialBounds: initialBounds ?? null,
   })
+
+  const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : triggerBtn
 
   const closeModal = () => {
     const rect = dialog.getBoundingClientRect()
@@ -149,13 +165,41 @@ export function openMoreInfoModal(options: OpenMoreInfoModalOptions): void {
     overlay.remove()
     dialog.remove()
     triggerBtn.setAttribute('aria-expanded', 'false')
+    previouslyFocused.focus()
     onClosed()
   }
+
+  const handleKeydown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      closeModal()
+      return
+    }
+    if (e.key !== 'Tab') return
+    const focusables = getFocusableElements(dialog)
+    if (focusables.length === 0) return
+    const first = focusables[0]
+    const last = focusables[focusables.length - 1]
+    const current = document.activeElement
+    if (e.shiftKey) {
+      if (current === first) {
+        e.preventDefault()
+        last.focus()
+      }
+    } else {
+      if (current === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+  }
+
   overlay.onclick = closeModal
   closeBtn.onclick = (e) => {
     e.stopPropagation()
     closeModal()
   }
+  dialog.addEventListener('keydown', handleKeydown)
   dialog.addEventListener(
     'wheel',
     (e) => {
@@ -167,6 +211,7 @@ export function openMoreInfoModal(options: OpenMoreInfoModalOptions): void {
 
   appRoot.appendChild(overlay)
   appRoot.appendChild(dialog)
+  dialog.focus()
   onOpened?.()
 }
 
