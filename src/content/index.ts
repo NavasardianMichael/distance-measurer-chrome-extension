@@ -1,5 +1,5 @@
 import { applyStoredMetricColors } from '@/content/helpers/metric-colors'
-import { createMetricsContainer, createMoreInfoModalContainer, computeArrangedRects } from '@/content/helpers/metrics'
+import { createMetricsContainer, createColorPaletteBlock, computeArrangedRects } from '@/content/helpers/metrics'
 import styles from '@/content/styles.module.css'
 
 const hoveredClassName = styles['extension_hovered']
@@ -22,17 +22,17 @@ function initMetrics(app: HTMLDivElement) {
 
       const { arrangedRects, frameCoords } = computeArrangedRects([first, second])
 
-      const metricsContainer = createMetricsContainer(frameCoords)
-      const modalContainer = createMoreInfoModalContainer(
+      const metricsContainer = createMetricsContainer({
         frameCoords,
         arrangedRects,
-        app,
-        () => { state.isMoreInfoModalOpen = false },
-        () => { state.isMoreInfoModalOpen = true }
-      )
+        appRoot: app,
+        onModalClosed: () => { state.isMoreInfoModalOpen = false },
+        onModalOpened: () => { state.isMoreInfoModalOpen = true },
+      })
+      const colorPaletteBlock = createColorPaletteBlock(app)
 
       app.appendChild(metricsContainer)
-      app.appendChild(modalContainer)
+      app.appendChild(colorPaletteBlock)
     },
     removeMetrics() {
       app.innerHTML = ''
@@ -114,7 +114,7 @@ export function initDistanceMeasurer(app: HTMLDivElement) {
   document.addEventListener('click', (e) => {
     const clickedElement = e.target as HTMLElement
     const isOnTriggerOrPicker = clickedElement.closest(
-      `.${styles.moreInfoTriggerBtn}, .${styles.metricColorPicker}, .${styles.moreInfoTriggerWrapper}, .${styles.moreInfoColorPickersContainer}`
+      `.${styles.moreInfoTriggerBtn}, .${styles.metricColorPicker}, .${styles.colorPaletteBlock}`
     )
     if (app.contains(clickedElement) && (isOnTriggerOrPicker || state.isMoreInfoModalOpen)) return
     if (state.isMoreInfoModalOpen) return

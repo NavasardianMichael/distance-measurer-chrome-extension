@@ -73,17 +73,13 @@
     pointer-events: none;
   }
 
-  /* Only the (i) button receives clicks; container and metrics don't block so outside click removes metrics */
+  /* Only the (i) button and color palette receive clicks; metrics container doesn't block */
   .appRootWithMetrics .metricsContainer {
     pointer-events: none;
   }
 
-  .appRootWithMetrics .moreInfoModalContainer {
-    pointer-events: none;
-  }
-
-  .appRootWithMetrics .moreInfoModalContainer .moreInfoTriggerWrapper,
-  .appRootWithMetrics .moreInfoModalContainer .moreInfoColorPickersContainer {
+  .appRootWithMetrics .metricsContainer .moreInfoTriggerBtn,
+  .appRootWithMetrics .colorPaletteBlock {
     pointer-events: auto;
   }
 
@@ -151,7 +147,9 @@
       background-color: var(--distance-measurer_metric-primary-color);
       color: var(--distance-measurer_metric-secondary-color);
       box-shadow: 1px 1px 2px var(--distance-measurer_modal-shadow);
-      transition: background-color 0.2s ease, color 0.2s ease;
+      transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
     }
 
     &.metricVertical .metricValue {
@@ -166,344 +164,317 @@
     }
   }
 
-  /* More-info button + modal: z-index 2, auto size (trigger + color pickers in wrapper) */
-  .moreInfoModalContainer {
+  /* Info button: inside metrics container, centered between frame */
+  .metricsContainer .moreInfoTriggerBtn {
     position: absolute;
-    left: 0;
-    top: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 100%;
+    font-size: 22px;
+    color: var(--distance-measurer_metric-secondary-color);
+    background-color: var(--distance-measurer_metric-primary-color);
+    cursor: pointer;
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease,
+      opacity 0.2s ease;
+    transform: translate(-50%, -50%);
     z-index: 2;
-    color: var(--distance-measurer_metric-primary-color);
-    transition: color 0.2s ease;
+  }
 
-    .moreInfoColorPickersContainer {
-      position: fixed;
-      top: 12px;
-      right: 12px;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 8px;
-      z-index: 2;
+  .metricsContainer .moreInfoTriggerBtn:hover {
+    opacity: 0.9;
+  }
+
+  .moreInfoTriggerBtnIcon {
+    width: 18px;
+    height: 18px;
+    display: block;
+    filter: brightness(0) invert(1);
+    cursor: pointer;
+  }
+
+  /* Block 2: color palette, top-right of viewport */
+  .colorPaletteBlock {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    z-index: 2;
+    color: var(--distance-measurer_metric-secondary-color);
+    background-color: var(--distance-measurer_modal-primary-color);
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid var(--distance-measurer_modal-secondary-color);
+  }
+
+  .metricColorPicker {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: transparent;
+  }
+
+  .metricColorPicker::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  .metricColorPicker::-webkit-color-swatch {
+    border: 1px solid var(--distance-measurer_gray);
+    border-radius: 4px;
+  }
+
+  /* Block 3: modal overlay (direct child of root when open) */
+  .moreInfoModalOverlay {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    background-color: var(--distance-measurer_overlay-bg);
+    pointer-events: auto;
+  }
+
+  /* Block 4: modal dialog (direct child of root when open) */
+  .moreInfoModalContent {
+    position: fixed;
+    z-index: 2;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 90vw;
+    max-height: 90vh;
+    min-width: 440px;
+    min-height: 200px;
+    padding: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--distance-measurer_modal-secondary-color);
+    color: var(--distance-measurer_modal-primary-color);
+    box-shadow: 0 4px 8px var(--distance-measurer_modal-shadow);
+    resize: none;
+    cursor: grab;
+    pointer-events: auto;
+    transition:
+      box-shadow 0.2s,
+      opacity 0.2s;
+
+    &:has(.dimModalBtn:hover) {
+      opacity: 0.1;
     }
 
-    .moreInfoTriggerWrapper {
-      position: absolute;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 8px;
-      transform: translate(-50%, -50%);
-    }
-
-    .metricColorPicker {
-      width: 24px;
-      height: 24px;
-      padding: 0;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      background: transparent;
-    }
-
-    .metricColorPicker::-webkit-color-swatch-wrapper {
-      padding: 0;
-    }
-
-    .metricColorPicker::-webkit-color-swatch {
-      border: 1px solid var(--distance-measurer_gray);
-      border-radius: 4px;
-    }
-
-    .moreInfoTriggerWrapper .moreInfoTriggerBtn {
-      position: static;
-      transform: none;
-    }
-
-    .moreInfoTriggerBtn {
-      position: absolute;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      padding: 0;
-      border: none;
-      border-radius: 100%;
-      font-size: 22px;
-      color: var(--distance-measurer_metric-secondary-color);
-      background-color: var(--distance-measurer_metric-primary-color);
-      cursor: pointer;
-      transition: color 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
-      transform: translate(-50%, -50%);
-
-      &:hover {
-        opacity: 0.9;
+    &:hover {
+      *:not(.moreInfoModalResizeHandle):not(.closeMoreInfoModalBtn):not(.closeMoreInfoModalBtn *):not(.dimModalBtn):not(
+          .dimModalBtn *
+        ) {
+        cursor: grab;
       }
-    }
 
-    .moreInfoTriggerBtnCentered {
-      left: var(--trigger-left);
-      top: var(--trigger-top);
-    }
-
-    .moreInfoTriggerBtnIcon {
-      width: 18px;
-      height: 18px;
-      display: block;
-      filter: brightness(0) invert(1);
-      cursor: pointer;
-    }
-
-    .moreInfoModalContentContainer {
-      position: absolute;
-      left: 0;
-      top: 0;
+      box-shadow: 0px 0px 12px var(--distance-measurer_gray);
     }
   }
 
-  /* When open, full viewport overlay/dialog; must be under root but not under transformed parent (e.g. trigger wrapper) */
-  .moreInfoModalContentContainerFixed {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 1;
-      pointer-events: none;
+  .moreInfoModalContentDragging {
+    cursor: grabbing;
+    user-select: none;
+  }
 
-      .moreInfoModalOverlay {
-        position: absolute;
-        inset: 0;
-        z-index: 1;
-        width: 100%;
-        height: 100%;
-        background-color: var(--distance-measurer_overlay-bg);
-        pointer-events: auto;
+  .moreInfoModalHeader {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 20px 12px;
+    border-bottom: 1px solid var(--distance-measurer_modal-primary-color);
+    cursor: grab;
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  .moreInfoModalHeaderActions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .moreInfoModalHeaderActions .closeMoreInfoModalBtn,
+  .moreInfoModalHeaderActions .closeMoreInfoModalBtn * {
+    cursor: pointer;
+  }
+
+  .moreInfoModalHeaderActions .dimModalBtn,
+  .moreInfoModalHeaderActions .dimModalBtn * {
+    cursor: default;
+  }
+
+  .dimModalBtn {
+    flex-shrink: 0;
+    padding: 0;
+    border: none;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--distance-measurer_modal-primary-color);
+    background-color: transparent;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .dimModalBtn:hover {
+    opacity: 0.8;
+  }
+
+  .dimModalBtnIcon {
+    display: block;
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+  }
+
+  .closeMoreInfoModalBtn {
+    flex-shrink: 0;
+    padding: 0;
+    border: none;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--distance-measurer_modal-primary-color);
+    background-color: transparent;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .closeMoreInfoModalBtn:hover {
+    opacity: 0.8;
+  }
+
+  .closeMoreInfoModalBtnIcon {
+    display: block;
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+  }
+
+  .moreInfoModalBody {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 16px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    cursor: grab;
+    pointer-events: auto;
+    scrollbar-width: thin;
+  }
+
+  .moreInfoModalBody::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .moreInfoModalBody::-webkit-scrollbar-button {
+    display: none;
+    height: 0;
+    width: 0;
+  }
+
+  .moreInfoModalTitle {
+    margin: 0;
+  }
+
+  .moreInfoModalResizeHandle {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    transform: translate(-2px, -2px);
+    width: 26px;
+    height: 26px;
+    cursor: nwse-resize;
+    background: transparent;
+    border-bottom: 4px solid #676666;
+    border-right: 4px solid #676666;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 7px;
+    flex-shrink: 0;
+  }
+
+  .moreInfoModalResizeHandle::before {
+    content: '\2921';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(-5deg);
+    font-size: 21px;
+    line-height: 1;
+    font-weight: 700;
+    color: #4b4b4b;
+    pointer-events: none;
+  }
+
+  .moreInfoModalResizeHandle:hover {
+    opacity: 0.9;
+  }
+
+  .moreInfoModalBody .moreInfoModalContentDimensionsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+  }
+
+  .moreInfoModalContentDimensionsTypeContainer {
+    flex-grow: 1;
+    min-width: 300px;
+
+    .moreInfoList {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding-left: 0;
+
+      &.moreInfoListHorizontal img {
+        transform: rotate(90deg);
       }
 
-      .moreInfoModalContent {
-        position: fixed;
-        z-index: 2;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        width: 90vw;
-        max-width: 90vw;
-        max-height: 90vh;
-        min-width: 440px;
-        min-height: 200px;
-        padding: 0;
-        border-radius: 8px;
-        overflow: hidden;
+      .moreInfoListItem {
         display: flex;
         flex-direction: column;
-        background-color: var(--distance-measurer_modal-secondary-color);
-        color: var(--distance-measurer_modal-primary-color);
-        box-shadow: 0 4px 8px var(--distance-measurer_modal-shadow);
-        resize: none;
-        cursor: grab;
-        pointer-events: auto;
-        transition:
-          box-shadow 0.2s,
-          opacity 0.2s;
+        gap: 10px;
+        text-transform: capitalize;
 
-        &:has(.dimModalBtn:hover) {
-          opacity: 0.1;
-        }
-
-        &:hover {
-          *:not(.moreInfoModalResizeHandle):not(.closeMoreInfoModalBtn):not(.closeMoreInfoModalBtn *):not(.dimModalBtn):not(.dimModalBtn *) {
-            cursor: grab;
-          }
-
-          box-shadow: 0px 0px 12px var(--distance-measurer_gray);
-        }
-      }
-
-      .moreInfoModalContentDragging {
-        cursor: grabbing;
-        user-select: none;
-      }
-
-      .moreInfoModalHeader {
-        display: flex;
-        align-items: start;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 20px 12px;
-        border-bottom: 1px solid var(--distance-measurer_modal-primary-color);
-        cursor: grab;
-        user-select: none;
-        flex-shrink: 0;
-      }
-
-      .moreInfoModalHeaderActions {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 4px;
-        flex-shrink: 0;
-      }
-
-      .moreInfoModalHeaderActions .closeMoreInfoModalBtn,
-      .moreInfoModalHeaderActions .closeMoreInfoModalBtn *,
-      .moreInfoModalHeaderActions .dimModalBtn,
-      .moreInfoModalHeaderActions .dimModalBtn * {
-        cursor: pointer;
-      }
-
-      .dimModalBtn {
-        flex-shrink: 0;
-        padding: 0;
-        border: none;
-        width: 28px;
-        height: 28px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--distance-measurer_modal-primary-color);
-        background-color: transparent;
-        cursor: pointer;
-        transition: 0.2s;
-      }
-
-      .dimModalBtn:hover {
-        opacity: 0.8;
-      }
-
-      .dimModalBtnIcon {
-        display: block;
-        width: 22px;
-        height: 22px;
-        object-fit: contain;
-      }
-
-      .closeMoreInfoModalBtn {
-        flex-shrink: 0;
-        padding: 0;
-        border: none;
-        width: 28px;
-        height: 28px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--distance-measurer_modal-primary-color);
-        background-color: transparent;
-        cursor: pointer;
-        transition: 0.2s;
-      }
-
-      .closeMoreInfoModalBtn:hover {
-        opacity: 0.8;
-      }
-
-      .closeMoreInfoModalBtnIcon {
-        display: block;
-        width: 22px;
-        height: 22px;
-        object-fit: contain;
-      }
-
-      .moreInfoModalBody {
-        flex: 1;
-        min-height: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-        padding: 16px;
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        cursor: grab;
-        pointer-events: auto;
-        scrollbar-width: thin;
-      }
-
-      .moreInfoModalBody::-webkit-scrollbar {
-        width: 8px;
-      }
-
-      .moreInfoModalBody::-webkit-scrollbar-button {
-        display: none;
-        height: 0;
-        width: 0;
-      }
-
-      .moreInfoModalTitle {
-        margin: 0;
-      }
-
-      .moreInfoModalResizeHandle {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        transform: translate(-2px, -2px);
-        width: 26px;
-        height: 26px;
-        cursor: nwse-resize;
-        background: transparent;
-        border-bottom: 4px solid #676666;
-        border-right: 4px solid #676666;
-        border-top-right-radius: 0px;
-        border-bottom-left-radius: 0px;
-        border-bottom-right-radius: 7px;
-        flex-shrink: 0;
-      }
-
-      .moreInfoModalResizeHandle::before {
-        content: '\2921';
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%) rotate(-5deg);
-        font-size: 21px;
-        line-height: 1;
-        font-weight: 700;
-        color: #4b4b4b;
-        pointer-events: none;
-      }
-
-      .moreInfoModalResizeHandle:hover {
-        opacity: 0.9;
-      }
-
-      .moreInfoModalBody .moreInfoModalContentDimensionsContainer {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 40px;
-      }
-
-      .moreInfoModalContentDimensionsTypeContainer {
-        flex-grow: 1;
-        min-width: 300px;
-
-        .moreInfoList {
+        .moreInfoListItemContent {
           display: flex;
-          flex-direction: column;
-          gap: 20px;
-          padding-left: 0;
+          align-items: center;
+          gap: 10px;
 
-          &.moreInfoListHorizontal img {
-            transform: rotate(90deg);
-          }
-
-          .moreInfoListItem {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            text-transform: capitalize;
-
-            .moreInfoListItemContent {
-              display: flex;
-              align-items: center;
-              gap: 10px;
-
-              & > img {
-                max-width: 80px;
-              }
-            }
+          & > img {
+            max-width: 80px;
           }
         }
       }
     }
+  }
 }
 
 /* Chevron arrows (direction indicators) */

@@ -96,11 +96,7 @@ export function openMoreInfoModal(options: OpenMoreInfoModalOptions): void {
 
   triggerBtn.setAttribute('aria-expanded', 'true')
 
-  const contentContainer = document.createElement('div')
-  contentContainer.classList.add(styles.moreInfoModalContentContainer)
-  contentContainer.classList.add(styles.moreInfoModalContentContainerFixed)
-  contentContainer.setAttribute('role', 'presentation')
-
+  const overlay = createModalOverlay()
   const dialog = document.createElement('div')
   dialog.classList.add(styles.moreInfoModalContent)
   dialog.setAttribute('role', 'dialog')
@@ -115,7 +111,6 @@ export function openMoreInfoModal(options: OpenMoreInfoModalOptions): void {
     dialog.style.height = `${Math.max(MODAL_DIMENSIONS.MIN_HEIGHT, initialBounds.height)}px`
   }
   dialog.innerHTML = buildDistanceModalBodyHtml(rects)
-  contentContainer.appendChild(dialog)
 
   const closeBtn = createModalCloseButton()
   const dimBtn = createDimModalButton()
@@ -143,19 +138,16 @@ export function openMoreInfoModal(options: OpenMoreInfoModalOptions): void {
     initialBounds: initialBounds ?? null,
   })
 
-  const overlay = createModalOverlay()
   const closeModal = () => {
-    const d = contentContainer.firstElementChild
-    if (d) {
-      const rect = d.getBoundingClientRect()
-      saveModalBounds({
-        left: Math.round(rect.left),
-        top: Math.round(rect.top),
-        width: Math.round(rect.width),
-        height: Math.round(rect.height),
-      })
-    }
-    if (contentContainer.parentNode) contentContainer.parentNode.removeChild(contentContainer)
+    const rect = dialog.getBoundingClientRect()
+    saveModalBounds({
+      left: Math.round(rect.left),
+      top: Math.round(rect.top),
+      width: Math.round(rect.width),
+      height: Math.round(rect.height),
+    })
+    overlay.remove()
+    dialog.remove()
     triggerBtn.setAttribute('aria-expanded', 'false')
     onClosed()
   }
@@ -172,10 +164,9 @@ export function openMoreInfoModal(options: OpenMoreInfoModalOptions): void {
     },
     { passive: false }
   )
-  contentContainer.appendChild(overlay)
 
-  /* Append to appRoot so overlay/dialog are viewport-relative (trigger wrapper has transform, which would create a containing block) */
-  appRoot.appendChild(contentContainer)
+  appRoot.appendChild(overlay)
+  appRoot.appendChild(dialog)
   onOpened?.()
 }
 

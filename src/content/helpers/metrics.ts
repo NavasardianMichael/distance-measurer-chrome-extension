@@ -5,6 +5,14 @@ import type { ArrangedRects } from '@/content/helpers/modal-html'
 import { createMoreInfoTriggerButton, getInitialModalBounds, openMoreInfoModal } from '@/content/helpers/modal-ui'
 import styles from '@/content/styles.module.css'
 
+export type CreateMetricsContainerOptions = {
+  frameCoords: FrameCoords
+  arrangedRects: ArrangedRects
+  appRoot: HTMLDivElement
+  onModalClosed: () => void
+  onModalOpened?: () => void
+}
+
 export type FrameCoords = {
   frameTopDoc: number
   frameBottomDoc: number
@@ -84,9 +92,14 @@ function createFrameBorder(
   return el
 }
 
-export function createMetricsContainer(
-  frameCoords: FrameCoords
-): HTMLDivElement {
+export function createMetricsContainer(options: CreateMetricsContainerOptions): HTMLDivElement {
+  const {
+    frameCoords,
+    arrangedRects,
+    appRoot,
+    onModalClosed,
+    onModalOpened,
+  } = options
   const {
     frameTopDoc,
     frameBottomDoc,
@@ -120,6 +133,30 @@ export function createMetricsContainer(
       createArrowMetric(frameLeftDoc, frameRightDoc, frameTopDoc, frameBottomDoc, false)
     )
   }
+
+  const centerX = Math.min(frameLeftDoc, frameRightDoc) + Math.abs(frameRightDoc - frameLeftDoc) / 2
+  const centerY = Math.min(frameTopDoc, frameBottomDoc) + Math.abs(frameBottomDoc - frameTopDoc) / 2
+  const triggerBtn = createMoreInfoTriggerButton(
+    frameLeftDoc,
+    frameRightDoc,
+    frameTopDoc,
+    frameBottomDoc,
+    { centered: false }
+  )
+  triggerBtn.style.left = `${centerX}px`
+  triggerBtn.style.top = `${centerY}px`
+  triggerBtn.onclick = async () => {
+    const initialBounds = await getInitialModalBounds()
+    openMoreInfoModal({
+      appRoot,
+      triggerBtn,
+      rects: arrangedRects,
+      initialBounds,
+      onClosed: onModalClosed,
+      onOpened: onModalOpened,
+    })
+  }
+  container.appendChild(triggerBtn)
 
   return container
 }
@@ -167,53 +204,13 @@ function createArrowMetric(
   return metricContainer
 }
 
-export function createMoreInfoModalContainer(
-  frameCoords: FrameCoords,
-  arrangedRects: ArrangedRects,
-  appRoot: HTMLDivElement,
-  onModalClosed: () => void,
-  onModalOpened?: () => void
-): HTMLDivElement {
-  const { frameLeftDoc, frameRightDoc, frameTopDoc, frameBottomDoc } = frameCoords
-  const centerX = Math.min(frameLeftDoc, frameRightDoc) + Math.abs(frameRightDoc - frameLeftDoc) / 2
-  const centerY = Math.min(frameTopDoc, frameBottomDoc) + Math.abs(frameBottomDoc - frameTopDoc) / 2
-
-  const modalContainer = document.createElement('div')
-  modalContainer.classList.add(styles.moreInfoModalContainer)
-
-  const pickersContainer = document.createElement('div')
-  pickersContainer.innerHTML = '<span>Color Palette </span>'
-  pickersContainer.classList.add(styles.moreInfoColorPickersContainer)
+/** Color palette block (top-right of viewport); only shown when metrics are painted. */
+export function createColorPaletteBlock(appRoot: HTMLDivElement): HTMLDivElement {
+  const block = document.createElement('div')
+  block.classList.add(styles.colorPaletteBlock)
+  block.innerHTML = '<span>Color Palette </span>'
   const { primaryPicker, secondaryPicker } = createMetricColorPickers(appRoot, styles.metricColorPicker)
-  pickersContainer.appendChild(primaryPicker)
-  pickersContainer.appendChild(secondaryPicker)
-
-  const wrapper = document.createElement('div')
-  wrapper.classList.add(styles.moreInfoTriggerWrapper)
-  wrapper.style.left = `${centerX}px`
-  wrapper.style.top = `${centerY}px`
-
-  const triggerBtn = createMoreInfoTriggerButton(
-    frameLeftDoc,
-    frameRightDoc,
-    frameTopDoc,
-    frameBottomDoc,
-    { centered: false }
-  )
-  triggerBtn.onclick = async () => {
-    const initialBounds = await getInitialModalBounds()
-    openMoreInfoModal({
-      appRoot,
-      triggerBtn,
-      rects: arrangedRects,
-      initialBounds,
-      onClosed: onModalClosed,
-      onOpened: onModalOpened,
-    })
-  }
-
-  wrapper.appendChild(triggerBtn)
-  modalContainer.appendChild(pickersContainer)
-  modalContainer.appendChild(wrapper)
-  return modalContainer
+  block.appendChild(primaryPicker)
+  block.appendChild(secondaryPicker)
+  return block
 }
