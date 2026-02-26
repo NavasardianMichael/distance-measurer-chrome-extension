@@ -16,7 +16,7 @@
    --------------------------------------------------------------------------- */
 :global(#distance-measurer-extension-root-dev),
 :global(#distance-measurer-extension-root) {
-  position: relative !important;
+  position: absolute !important;
   z-index: 2147483647 !important;
 
   /* Theme variables (scoped to this root only) */
@@ -304,7 +304,10 @@
 
   /* Same specificity as .moreInfoModalContent:hover * so this wins when both apply (dragging) */
   .moreInfoModalContent.moreInfoModalContentDragging,
-  .moreInfoModalContent.moreInfoModalContentDragging *:not(.moreInfoModalResizeHandle):not(.closeMoreInfoModalBtn):not(.closeMoreInfoModalBtn *):not(.dimModalBtn):not(.dimModalBtn *) {
+  .moreInfoModalContent.moreInfoModalContentDragging
+    *:not(.moreInfoModalResizeHandle):not(.closeMoreInfoModalBtn):not(.closeMoreInfoModalBtn *):not(.dimModalBtn):not(
+      .dimModalBtn *
+    ) {
     cursor: grabbing !important;
   }
 

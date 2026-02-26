@@ -8,6 +8,7 @@ import { makeModalDraggableAndResizable } from '@/content/helpers/modal-drag-res
 import {
   clampModalToViewport,
   getStoredModalBounds,
+  isModalBoundsVisibleInViewport,
   saveModalBounds,
 } from '@/content/helpers/modal-storage'
 import type { ModalBounds } from '@/content/helpers/modal-storage'
@@ -220,5 +221,6 @@ export async function getInitialModalBounds(): Promise<ModalBounds | null> {
   if (stored == null) return null
   const vw = window.innerWidth
   const vh = window.innerHeight
+  if (!isModalBoundsVisibleInViewport(stored, vw, vh)) return null
   return clampModalToViewport(stored, vw, vh)
 }
