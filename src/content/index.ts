@@ -113,10 +113,12 @@ export function initDistanceMeasurer(app: HTMLDivElement) {
 
   document.addEventListener('click', (e) => {
     const clickedElement = e.target as HTMLElement
-    const isOnTriggerOrPicker = clickedElement.closest(
-      `.${styles.moreInfoTriggerBtn}, .${styles.metricColorPicker}, .${styles.colorPaletteBlock}`
-    )
-    if (app.contains(clickedElement) && (isOnTriggerOrPicker || state.isMoreInfoModalOpen)) return
+    const isInsideApp = app.contains(clickedElement)
+    const isOverlayClick =
+      clickedElement instanceof Element &&
+      clickedElement.classList.contains(styles.moreInfoModalOverlay)
+    if (isInsideApp || isOverlayClick) return
+
     if (state.isMoreInfoModalOpen) return
 
     if (!isCtrlPressed) {

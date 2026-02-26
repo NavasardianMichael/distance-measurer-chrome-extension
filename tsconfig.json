@@ -23,7 +23,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
     "types": ["vite/client", "@types/chrome"]
   },
   "include": ["src", "vite-env.d.ts"]

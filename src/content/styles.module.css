@@ -74,11 +74,6 @@
     margin-bottom: 0.5rem;
   }
 
-  ::selection {
-    background-color: var(--distance-measurer_metric-primary-color);
-    color: var(--distance-measurer_metric-secondary-color);
-  }
-
   .appRootWithMetrics {
     position: absolute;
     left: 0;
@@ -164,6 +159,8 @@
       transition:
         background-color 0.2s ease,
         color 0.2s ease;
+      pointer-events: auto;
+      user-select: text;
     }
 
     &.metricVertical .metricValue {
@@ -227,7 +224,7 @@
     background-color: var(--distance-measurer_modal-primary-color);
     padding: 6px;
     border-radius: 4px;
-    border: 1px solid var(--distance-measurer_modal-secondary-color);
+    box-shadow: 0px 0px 2px var(--distance-measurer_modal-secondary-color);
   }
 
   .metricColorPicker {
@@ -255,7 +252,7 @@
     inset: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 1;
+    z-index: 3;
     background-color: var(--distance-measurer_overlay-bg);
     pointer-events: auto;
   }
@@ -263,7 +260,7 @@
   /* Block 4: modal dialog (direct child of root when open) */
   .moreInfoModalContent {
     position: fixed;
-    z-index: 2;
+    z-index: 4;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -286,6 +283,11 @@
     transition:
       box-shadow 0.2s,
       opacity 0.2s;
+
+    ::selection {
+      background-color: var(--distance-measurer_metric-primary-color);
+      color: var(--distance-measurer_metric-secondary-color);
+    }
 
     &:has(.dimModalBtn:hover) {
       opacity: 0.1;
