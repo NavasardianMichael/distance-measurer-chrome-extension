@@ -32,15 +32,16 @@ export function computeArrangedRects(elements: [HTMLElement, HTMLElement]): {
   const firstRect = firstElement.getBoundingClientRect()
   const secondRect = secondElement.getBoundingClientRect()
 
-  const arrangedElements = {
-    top: firstRect.top <= secondRect.top ? firstElement : secondElement,
-    bottom: firstRect.top <= secondRect.top ? secondElement : firstElement,
-    left: firstRect.left <= secondRect.left ? firstElement : secondElement,
-    right: firstRect.left <= secondRect.left ? secondElement : firstElement,
+  const topRect = firstRect.top <= secondRect.top ? firstRect : secondRect
+  const bottomRect = firstRect.top <= secondRect.top ? secondRect : firstRect
+  const leftRect = firstRect.left <= secondRect.left ? firstRect : secondRect
+  const rightRect = firstRect.left <= secondRect.left ? secondRect : firstRect
+  const arrangedRects: ArrangedRects = {
+    top: topRect,
+    bottom: bottomRect,
+    left: leftRect,
+    right: rightRect,
   }
-  const arrangedRects = Object.fromEntries(
-    Object.entries(arrangedElements).map(([key, element]) => [key, element.getBoundingClientRect()])
-  ) as ArrangedRects
 
   const isVerticallyOverlapping = arrangedRects.top.bottom > arrangedRects.bottom.top
   const isHorizontallyOverlapping = arrangedRects.left.right > arrangedRects.right.left

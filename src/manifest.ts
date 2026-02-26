@@ -30,7 +30,7 @@ const manifest: ManifestV3Export = {
       32: 'src/_shared/icons/logo32.png',
       48: 'src/_shared/icons/logo48.png',
     },
-    default_title: 'Ruler Extension',
+    default_title: 'Distance Measurer',
   },
   permissions: ['activeTab', 'storage'],
 }

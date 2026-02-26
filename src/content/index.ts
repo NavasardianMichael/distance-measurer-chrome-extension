@@ -51,10 +51,14 @@ export function initDistanceMeasurer(app: HTMLDivElement) {
   let lastMouseX = 0
   let lastMouseY = 0
 
-  document.addEventListener('mousemove', (e) => {
-    lastMouseX = e.clientX
-    lastMouseY = e.clientY
-  })
+  document.addEventListener(
+    'mousemove',
+    (e) => {
+      lastMouseX = e.clientX
+      lastMouseY = e.clientY
+    },
+    { passive: true }
+  )
 
   window.addEventListener('keydown', (e) => {
     if (e.ctrlKey) {

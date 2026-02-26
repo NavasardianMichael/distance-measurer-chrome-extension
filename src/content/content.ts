@@ -1,6 +1,6 @@
 import { initDistanceMeasurer } from '@/content/index'
 
-function initReactApp() {
+function initDistanceMeasurerApp() {
   const container = document.createElement('div')
   container.id = 'distance-measurer-extension-root'
   document.body.appendChild(container)
@@ -8,4 +8,4 @@ function initReactApp() {
   initDistanceMeasurer(container)
 }
 
-initReactApp()
+initDistanceMeasurerApp()

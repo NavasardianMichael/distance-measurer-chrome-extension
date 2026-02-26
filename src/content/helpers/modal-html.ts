@@ -12,7 +12,7 @@ export function buildDistanceModalBodyHtml(rects: ArrangedRects): string {
   const b = rects.bottom
   const l = rects.left
   const r = rects.right
-  return `
+  return (`
     <div class="${styles.moreInfoModalHeader}" data-drag-handle role="region" aria-label="Modal header, drag to move">
       <h3 id="distance-measurer-modal-title" class="${styles.moreInfoModalTitle}">Details About Distance Between Elements</h3>
     </div>
@@ -86,5 +86,5 @@ export function buildDistanceModalBodyHtml(rects: ArrangedRects): string {
         </div>
       </div>
     </div>
-  `
+  `).trim()
 }
