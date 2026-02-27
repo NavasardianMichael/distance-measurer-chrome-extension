@@ -104,47 +104,47 @@ export function initDistanceMeasurer(app: HTMLDivElement) {
   document.addEventListener(
     'click',
     (e) => {
-      if (!e.ctrlKey) return
-      const target = e.target as Node
-      if (app.contains(target)) return
+      const target = e.target as HTMLElement | null
+      if (!target) return
+
+      const isInsideApp = app.contains(target)
+      const isOverlayClick =
+        target instanceof Element && target.classList.contains(styles.moreInfoModalOverlay)
+      if (isInsideApp || isOverlayClick) return
+
       if (state.isMoreInfoModalOpen) return
-      if (hoveredElement && (target === hoveredElement || hoveredElement.contains(target))) {
+
+      if (e.ctrlKey && e.button === 0) {
+        // When Ctrl is pressed, fully intercept the click so the page
+        // does not receive it or perform default actions (e.g. link navigation).
         e.preventDefault()
+        e.stopPropagation()
+
+        if (selectedElements.has(target)) return
+
+        if (selectedElements.size === 2) {
+          const first = selectedElements.values().next().value as HTMLElement
+          first.classList.remove(selectedClassName)
+          selectedElements.delete(first)
+        }
+
+        target.classList.add(selectedClassName)
+        selectedElements.add(target)
+        if (selectedElements.size === 2) void paintMetrics(selectedElements)
+
+        return
+      }
+
+      if (!isCtrlPressed) {
+        removeMetrics()
+        if (hoveredElement) {
+          hoveredElement.classList.remove(hoveredClassName)
+          hoveredElement = null
+        }
+        selectedElements.forEach((el) => el.classList.remove(selectedClassName))
+        selectedElements.clear()
       }
     },
     true
   )
-
-  document.addEventListener('click', (e) => {
-    const clickedElement = e.target as HTMLElement
-    const isInsideApp = app.contains(clickedElement)
-    const isOverlayClick =
-      clickedElement instanceof Element &&
-      clickedElement.classList.contains(styles.moreInfoModalOverlay)
-    if (isInsideApp || isOverlayClick) return
-
-    if (state.isMoreInfoModalOpen) return
-
-    if (!isCtrlPressed) {
-      removeMetrics()
-      if (hoveredElement) {
-        hoveredElement.classList.remove(hoveredClassName)
-        hoveredElement = null
-      }
-      selectedElements.forEach((el) => el.classList.remove(selectedClassName))
-      selectedElements.clear()
-      return
-    }
-
-    if (selectedElements.has(clickedElement)) return
-
-    if (selectedElements.size === 2) {
-      const first = selectedElements.values().next().value as HTMLElement
-      first.classList.remove(selectedClassName)
-      selectedElements.delete(first)
-    }
-    clickedElement.classList.add(selectedClassName)
-    selectedElements.add(clickedElement)
-    if (selectedElements.size === 2) void paintMetrics(selectedElements)
-  })
 }

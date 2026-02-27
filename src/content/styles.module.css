@@ -74,7 +74,7 @@
     margin-bottom: 0.5rem;
   }
 
-  .appRootWithMetrics {
+  &.appRootWithMetrics {
     position: absolute;
     left: 0;
     top: 0;
@@ -83,12 +83,12 @@
   }
 
   /* Only the (i) button and color palette receive clicks; metrics container doesn't block */
-  .appRootWithMetrics .metricsContainer {
+  &.appRootWithMetrics .metricsContainer {
     pointer-events: none;
   }
 
-  .appRootWithMetrics .metricsContainer .moreInfoTriggerBtn,
-  .appRootWithMetrics .colorPaletteBlock {
+  &.appRootWithMetrics .metricsContainer .moreInfoTriggerBtn,
+  &.appRootWithMetrics .colorPaletteBlock {
     pointer-events: auto;
   }
 
@@ -167,6 +167,11 @@
       bottom: 0;
       left: 50%;
       transform: translate(-50%, calc(100% + 4px));
+      /* Prevent narrow parent (2px line) from constraining width and stacking chars vertically */
+      width: max-content;
+      min-width: max-content;
+      white-space: nowrap;
+      writing-mode: horizontal-tb;
     }
 
     &.metricHorizontal .metricValue {
@@ -338,13 +343,10 @@
   }
 
   .moreInfoModalHeaderActions .closeMoreInfoModalBtn,
-  .moreInfoModalHeaderActions .closeMoreInfoModalBtn * {
-    cursor: pointer;
-  }
-
+  .moreInfoModalHeaderActions .closeMoreInfoModalBtn *,
   .moreInfoModalHeaderActions .dimModalBtn,
   .moreInfoModalHeaderActions .dimModalBtn * {
-    cursor: default;
+    cursor: pointer;
   }
 
   .dimModalBtn {
