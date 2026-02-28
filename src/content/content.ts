@@ -5,7 +5,34 @@ function initDistanceMeasurerApp() {
   container.id = 'distance-measurer-extension-root'
   document.body.appendChild(container)
 
-  initDistanceMeasurer(container)
+  const { destroy } = initDistanceMeasurer(container)
+
+  // Ref object so we can null out after teardown and allow GC of observer, destroy, and container.
+  const ref: {
+    observer: MutationObserver | null
+    destroy: (() => void) | null
+    container: HTMLElement | null
+  } = { observer: null, destroy, container }
+
+  const teardown = () => {
+    ref.observer?.disconnect()
+    ref.observer = null
+    ref.destroy?.()
+    ref.destroy = null
+    ref.container = null
+  }
+
+  ref.observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.type === 'childList' && ref.container && Array.from(mutation.removedNodes).includes(ref.container)) {
+        teardown()
+        return
+      }
+    }
+  })
+  ref.observer.observe(document.body, { childList: true, subtree: false })
+
+  window.addEventListener('pagehide', teardown)
 }
 
 initDistanceMeasurerApp()

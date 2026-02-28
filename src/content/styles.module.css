@@ -180,7 +180,7 @@
     }
   }
 
-  /* Info button: inside metrics container, centered between frame */
+  /* Info button: primary bg, secondary text (icon character) */
   .metricsContainer .moreInfoTriggerBtn {
     position: absolute;
     display: inline-flex;
@@ -208,10 +208,8 @@
   }
 
   .moreInfoTriggerBtnIcon {
-    width: 18px;
-    height: 18px;
-    display: block;
-    filter: brightness(0) invert(1);
+    font-size: 1.1em;
+    line-height: 1;
     cursor: pointer;
   }
 
@@ -225,7 +223,7 @@
     align-items: center;
     gap: 8px;
     z-index: 2;
-    color: var(--distance-measurer_metric-secondary-color);
+    color: var(--distance-measurer_modal-secondary-color);
     background-color: var(--distance-measurer_modal-primary-color);
     padding: 6px;
     border-radius: 4px;

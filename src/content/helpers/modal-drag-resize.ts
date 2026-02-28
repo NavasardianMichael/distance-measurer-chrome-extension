@@ -10,7 +10,6 @@ export function makeModalDraggableAndResizable(
     minWidth?: number
     minHeight?: number
     initialBounds?: ModalBounds | null
-    onBoundsChange?: () => void
   }
 ): void {
   const {
@@ -18,7 +17,6 @@ export function makeModalDraggableAndResizable(
     minWidth = MODAL_DIMENSIONS.MIN_WIDTH,
     minHeight = MODAL_DIMENSIONS.MIN_HEIGHT,
     initialBounds,
-    onBoundsChange,
   } = options
 
   const applyPosition = (left: number, top: number) => {
@@ -46,7 +44,6 @@ export function makeModalDraggableAndResizable(
       width: Math.round(rect.width),
       height: Math.round(rect.height),
     })
-    onBoundsChange?.()
   }
 
   const isExcludedTarget = (el: HTMLElement) =>
@@ -65,12 +62,21 @@ export function makeModalDraggableAndResizable(
     const startTop = rect.top
     dialog.classList.add(styles.moreInfoModalContentDragging)
 
+    let rafId = 0
+    let lastLeft = startLeft
+    let lastTop = startTop
+    const flushPosition = () => {
+      rafId = 0
+      applyPosition(lastLeft, lastTop)
+    }
     const onMove = (e: MouseEvent) => {
-      const dx = e.clientX - startX
-      const dy = e.clientY - startY
-      applyPosition(startLeft + dx, startTop + dy)
+      lastLeft = startLeft + (e.clientX - startX)
+      lastTop = startTop + (e.clientY - startY)
+      if (rafId === 0) rafId = requestAnimationFrame(flushPosition)
     }
     const onUp = () => {
+      if (rafId) cancelAnimationFrame(rafId)
+      rafId = 0
       dialog.classList.remove(styles.moreInfoModalContentDragging)
       document.removeEventListener('mousemove', onMove)
       document.removeEventListener('mouseup', onUp)
@@ -91,12 +97,21 @@ export function makeModalDraggableAndResizable(
     const startW = rect.width
     const startH = rect.height
 
+    let rafId = 0
+    let lastW = startW
+    let lastH = startH
+    const flushSize = () => {
+      rafId = 0
+      applySize(lastW, lastH)
+    }
     const onMove = (e: MouseEvent) => {
-      const dw = e.clientX - startX
-      const dh = e.clientY - startY
-      applySize(startW + dw, startH + dh)
+      lastW = startW + (e.clientX - startX)
+      lastH = startH + (e.clientY - startY)
+      if (rafId === 0) rafId = requestAnimationFrame(flushSize)
     }
     const onUp = () => {
+      if (rafId) cancelAnimationFrame(rafId)
+      rafId = 0
       document.removeEventListener('mousemove', onMove)
       document.removeEventListener('mouseup', onUp)
       saveBoundsToStorage()

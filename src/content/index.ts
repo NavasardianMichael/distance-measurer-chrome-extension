@@ -42,7 +42,16 @@ function initMetrics(app: HTMLDivElement) {
   }
 }
 
-export function initDistanceMeasurer(app: HTMLDivElement) {
+type EventTargetDoc = Document | Window
+
+interface ListenerSpec {
+  target: EventTargetDoc
+  event: string
+  handler: EventListener
+  options?: AddEventListenerOptions
+}
+
+export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void } {
   const { paintMetrics, removeMetrics } = initMetrics(app)
 
   let isCtrlPressed = false
@@ -51,17 +60,14 @@ export function initDistanceMeasurer(app: HTMLDivElement) {
   let lastMouseX = 0
   let lastMouseY = 0
 
-  document.addEventListener(
-    'mousemove',
-    (e) => {
-      lastMouseX = e.clientX
-      lastMouseY = e.clientY
-    },
-    { passive: true }
-  )
-
-  window.addEventListener('keydown', (e) => {
-    if (e.ctrlKey) {
+  const onMousemove: EventListener = (e) => {
+    const ev = e as MouseEvent
+    lastMouseX = ev.clientX
+    lastMouseY = ev.clientY
+  }
+  const onKeydown: EventListener = (e) => {
+    const ev = e as KeyboardEvent
+    if (ev.ctrlKey) {
       isCtrlPressed = true
       const el = document.elementFromPoint(lastMouseX, lastMouseY)
       if (el && el instanceof HTMLElement && !app.contains(el)) {
@@ -72,13 +78,11 @@ export function initDistanceMeasurer(app: HTMLDivElement) {
         }
       }
     }
-  })
-
-  window.addEventListener('keyup', (e) => {
-    if (!e.ctrlKey) isCtrlPressed = false
-  })
-
-  document.addEventListener('mouseover', (e) => {
+  }
+  const onKeyup: EventListener = (e) => {
+    if (!(e as KeyboardEvent).ctrlKey) isCtrlPressed = false
+  }
+  const onMouseover: EventListener = (e) => {
     if (!isCtrlPressed) return
     const target = e.target
     if (target === hoveredElement || !(target instanceof HTMLElement)) return
@@ -92,59 +96,82 @@ export function initDistanceMeasurer(app: HTMLDivElement) {
     if (hoveredElement) hoveredElement.classList.remove(hoveredClassName)
     hoveredElement = target
     hoveredElement.classList.add(hoveredClassName)
-  })
-
-  document.addEventListener('mouseout', () => {
+  }
+  const onMouseout: EventListener = () => {
     if (hoveredElement) {
       hoveredElement.classList.remove(hoveredClassName)
       hoveredElement = null
     }
-  })
+  }
+  const onClick: EventListener = (e) => {
+    const target = (e as MouseEvent).target as HTMLElement | null
+    if (!target) return
 
-  document.addEventListener(
-    'click',
-    (e) => {
-      const target = e.target as HTMLElement | null
-      if (!target) return
+    const isInsideApp = app.contains(target)
+    const isOverlayClick =
+      target instanceof Element && target.classList.contains(styles.moreInfoModalOverlay)
+    if (isInsideApp || isOverlayClick) return
 
-      const isInsideApp = app.contains(target)
-      const isOverlayClick =
-        target instanceof Element && target.classList.contains(styles.moreInfoModalOverlay)
-      if (isInsideApp || isOverlayClick) return
+    if (state.isMoreInfoModalOpen) return
 
-      if (state.isMoreInfoModalOpen) return
+    if ((e as MouseEvent).ctrlKey && (e as MouseEvent).button === 0) {
+      e.preventDefault()
+      e.stopPropagation()
 
-      if (e.ctrlKey && e.button === 0) {
-        // When Ctrl is pressed, fully intercept the click so the page
-        // does not receive it or perform default actions (e.g. link navigation).
-        e.preventDefault()
-        e.stopPropagation()
+      if (selectedElements.has(target)) return
 
-        if (selectedElements.has(target)) return
-
-        if (selectedElements.size === 2) {
-          const first = selectedElements.values().next().value as HTMLElement
-          first.classList.remove(selectedClassName)
-          selectedElements.delete(first)
-        }
-
-        target.classList.add(selectedClassName)
-        selectedElements.add(target)
-        if (selectedElements.size === 2) void paintMetrics(selectedElements)
-
-        return
+      if (selectedElements.size === 2) {
+        const first = selectedElements.values().next().value as HTMLElement
+        first.classList.remove(selectedClassName)
+        selectedElements.delete(first)
       }
 
-      if (!isCtrlPressed) {
-        removeMetrics()
-        if (hoveredElement) {
-          hoveredElement.classList.remove(hoveredClassName)
-          hoveredElement = null
-        }
-        selectedElements.forEach((el) => el.classList.remove(selectedClassName))
-        selectedElements.clear()
+      target.classList.add(selectedClassName)
+      selectedElements.add(target)
+      if (selectedElements.size === 2) void paintMetrics(selectedElements)
+
+      return
+    }
+
+    if (!isCtrlPressed) {
+      removeMetrics()
+      if (hoveredElement) {
+        hoveredElement.classList.remove(hoveredClassName)
+        hoveredElement = null
       }
-    },
-    true
-  )
+      selectedElements.forEach((el) => el.classList.remove(selectedClassName))
+      selectedElements.clear()
+    }
+  }
+
+  const mousemoveOpts: AddEventListenerOptions = { passive: true }
+  const clickOpts: AddEventListenerOptions = { capture: true }
+
+  const listeners: ListenerSpec[] = [
+    { target: document, event: 'mousemove', handler: onMousemove, options: mousemoveOpts },
+    { target: window, event: 'keydown', handler: onKeydown },
+    { target: window, event: 'keyup', handler: onKeyup },
+    { target: document, event: 'mouseover', handler: onMouseover },
+    { target: document, event: 'mouseout', handler: onMouseout },
+    { target: document, event: 'click', handler: onClick, options: clickOpts },
+  ]
+
+  for (const { target, event, handler, options } of listeners) {
+    target.addEventListener(event, handler, options)
+  }
+
+  function destroy() {
+    for (const { target, event, handler, options } of listeners) {
+      target.removeEventListener(event, handler, options)
+    }
+    removeMetrics()
+    if (hoveredElement) {
+      hoveredElement.classList.remove(hoveredClassName)
+      hoveredElement = null
+    }
+    selectedElements.forEach((el) => el.classList.remove(selectedClassName))
+    selectedElements.clear()
+  }
+
+  return { destroy }
 }

@@ -1,6 +1,5 @@
 import closeSvgUrl from '@/content/assets/close.svg?url'
 import eyeSvgUrl from '@/content/assets/eye.svg?url'
-import infoSvgUrl from '@/content/assets/info.svg?url'
 import { MODAL_DIMENSIONS } from '@/content/constants/modal'
 import { getExtensionURL } from '@/content/helpers/format'
 import { buildDistanceModalBodyHtml, type ArrangedRects } from '@/content/helpers/modal-html'
@@ -85,12 +84,11 @@ export function createMoreInfoTriggerButton(
   btn.setAttribute('aria-label', 'Discover more about distance between elements')
   btn.setAttribute('aria-haspopup', 'dialog')
   btn.setAttribute('aria-expanded', 'false')
-  const img = document.createElement('img')
-  img.src = getExtensionURL(infoSvgUrl)
-  img.alt = 'More details about distance between selected elements'
-  img.setAttribute('aria-hidden', 'true')
-  img.classList.add(styles.moreInfoTriggerBtnIcon)
-  btn.appendChild(img)
+  const icon = document.createElement('span')
+  icon.setAttribute('aria-hidden', 'true')
+  icon.classList.add(styles.moreInfoTriggerBtnIcon)
+  icon.textContent = '\u2139' /* ℹ INFORMATION (not in circle) */
+  btn.appendChild(icon)
   return btn
 }
 
@@ -116,13 +114,7 @@ export function openMoreInfoModal(options: OpenMoreInfoModalOptions): void {
   dialog.setAttribute('aria-labelledby', 'distance-measurer-modal-title')
   dialog.setAttribute('aria-describedby', 'distance-measurer-modal-desc')
   dialog.setAttribute('tabindex', '-1')
-  if (initialBounds) {
-    dialog.style.left = `${initialBounds.left}px`
-    dialog.style.top = `${initialBounds.top}px`
-    dialog.style.transform = 'none'
-    dialog.style.width = `${Math.max(MODAL_DIMENSIONS.MIN_WIDTH, initialBounds.width)}px`
-    dialog.style.height = `${Math.max(MODAL_DIMENSIONS.MIN_HEIGHT, initialBounds.height)}px`
-  }
+  // Initial position/size set only in makeModalDraggableAndResizable to avoid duplication.
   dialog.innerHTML = buildDistanceModalBodyHtml(rects)
 
   const closeBtn = createModalCloseButton()
