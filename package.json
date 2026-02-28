@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:ext": "tsc && vite build --watch",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "format": "cd src && npx prettier --write .",

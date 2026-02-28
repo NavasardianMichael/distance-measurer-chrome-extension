@@ -4,6 +4,7 @@ import {
   METRIC_COLOR_STORAGE_KEYS,
   METRIC_CSS_VARS,
 } from '@/content/constants/theme'
+import { getCssVar } from '@/content/helpers/css-var'
 
 const COLOR_SAVE_DEBOUNCE_MS = 300
 
@@ -54,9 +55,12 @@ export async function loadStoredMetricColors(): Promise<{ primary: string; secon
   }
 }
 
+/** Apply metric colors to both the extension root (UI) and document root (page-level .extension_hovered / .extension_selected). */
 export function applyMetricColors(root: HTMLElement, primary: string, secondary: string): void {
-  root.style.setProperty(METRIC_CSS_VARS.PRIMARY, primary)
-  root.style.setProperty(METRIC_CSS_VARS.SECONDARY, secondary)
+  for (const el of [root, document.documentElement]) {
+    el.style.setProperty(METRIC_CSS_VARS.PRIMARY, primary)
+    el.style.setProperty(METRIC_CSS_VARS.SECONDARY, secondary)
+  }
 }
 
 export async function applyStoredMetricColors(root: HTMLElement): Promise<void> {
@@ -73,9 +77,8 @@ function createDebouncedSaveMetricColors(root: HTMLElement): () => void {
       timeoutId = null
       try {
         if (typeof chrome === 'undefined' || !chrome.storage?.local?.set) return
-        const computed = getComputedStyle(root)
-        const primary = computed.getPropertyValue(METRIC_CSS_VARS.PRIMARY).trim() || DEFAULT_METRIC_PRIMARY
-        const secondary = computed.getPropertyValue(METRIC_CSS_VARS.SECONDARY).trim() || DEFAULT_METRIC_SECONDARY
+        const primary = getCssVar(METRIC_CSS_VARS.PRIMARY, DEFAULT_METRIC_PRIMARY, root)
+        const secondary = getCssVar(METRIC_CSS_VARS.SECONDARY, DEFAULT_METRIC_SECONDARY, root)
         chrome.storage.local.set({
           [METRIC_COLOR_STORAGE_KEYS.PRIMARY]: primary,
           [METRIC_COLOR_STORAGE_KEYS.SECONDARY]: secondary,
@@ -103,11 +106,9 @@ export function createMetricColorPicker(
 
   input.addEventListener('input', () => {
     const value = input.value
-    if (kind === 'primary') {
-      root.style.setProperty(METRIC_CSS_VARS.PRIMARY, value)
-    } else {
-      root.style.setProperty(METRIC_CSS_VARS.SECONDARY, value)
-    }
+    const primary = kind === 'primary' ? value : getCssVar(METRIC_CSS_VARS.PRIMARY, DEFAULT_METRIC_PRIMARY, root)
+    const secondary = kind === 'secondary' ? value : getCssVar(METRIC_CSS_VARS.SECONDARY, DEFAULT_METRIC_SECONDARY, root)
+    applyMetricColors(root, primary, secondary)
     debouncedSave()
   })
 
@@ -120,9 +121,8 @@ export function createMetricColorPickers(
   cssClass: string
 ): { primaryPicker: HTMLInputElement; secondaryPicker: HTMLInputElement } {
   const debouncedSave = createDebouncedSaveMetricColors(root)
-  const computed = getComputedStyle(root)
-  const primaryRaw = computed.getPropertyValue(METRIC_CSS_VARS.PRIMARY).trim() || DEFAULT_METRIC_PRIMARY
-  const secondaryRaw = computed.getPropertyValue(METRIC_CSS_VARS.SECONDARY).trim() || DEFAULT_METRIC_SECONDARY
+  const primaryRaw = getCssVar(METRIC_CSS_VARS.PRIMARY, DEFAULT_METRIC_PRIMARY, root)
+  const secondaryRaw = getCssVar(METRIC_CSS_VARS.SECONDARY, DEFAULT_METRIC_SECONDARY, root)
   const primary = toHex(primaryRaw)
   const secondary = toHex(secondaryRaw)
   return {

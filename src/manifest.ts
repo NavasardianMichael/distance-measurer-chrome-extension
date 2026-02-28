@@ -21,7 +21,7 @@ const manifest: ManifestV3Export = {
   ],
   "web_accessible_resources": [
     {
-      "resources": ["src/content/assets/*.png", "src/content/assets/*.svg"],
+      "resources": ["src/content/assets/*.png", "src/content/assets/*.svg", "src/_shared/icons/*.png"],
       "matches": ["<all_urls>"]
     }
   ],

@@ -1,10 +1,13 @@
 import '@/content/styles.module.css'
+import { applyStoredMetricColors } from '@/content/helpers/metric-colors'
 import { initDistanceMeasurer } from '@/content/index'
 
 function initDistanceMeasurerApp() {
   const container = document.createElement('div')
   container.id = 'distance-measurer-extension-root'
   document.body.appendChild(container)
+
+  void applyStoredMetricColors(container)
 
   const { destroy } = initDistanceMeasurer(container)
 

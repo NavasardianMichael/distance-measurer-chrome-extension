@@ -14,7 +14,10 @@ export function buildDistanceModalBodyHtml(rects: ArrangedRects): string {
   const r = rects.right
   return (`
     <div class="${styles.moreInfoModalHeader}" data-drag-handle role="region" aria-label="Modal header, drag to move">
-      <h3 id="distance-measurer-modal-title" class="${styles.moreInfoModalTitle}">Details About Distance Between Elements</h3>
+      <div class="${styles.moreInfoModalHeaderTitleRow}">
+        <img src="${getExtensionURL('src/_shared/icons/logo32.png')}" alt="" class="${styles.moreInfoModalLogo}" aria-hidden="true" />
+        <h3 id="distance-measurer-modal-title" class="${styles.moreInfoModalTitle}">Details About Distance Between Elements</h3>
+      </div>
     </div>
     <div class="${styles.moreInfoModalBody}" id="distance-measurer-modal-desc" role="region" aria-label="Distance measurements">
       <div class="${styles.moreInfoModalContentDimensionsContainer}">

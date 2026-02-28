@@ -1,9 +1,8 @@
 import closeSvgUrl from '@/content/assets/close.svg?url'
 import eyeSvgUrl from '@/content/assets/eye.svg?url'
-import { MODAL_DIMENSIONS } from '@/content/constants/modal'
 import { getExtensionURL } from '@/content/helpers/format'
-import { buildDistanceModalBodyHtml, type ArrangedRects } from '@/content/helpers/modal-html'
 import { makeModalDraggableAndResizable } from '@/content/helpers/modal-drag-resize'
+import { type ArrangedRects, buildDistanceModalBodyHtml } from '@/content/helpers/modal-html'
 import {
   clampModalToViewport,
   getStoredModalBounds,
@@ -11,6 +10,7 @@ import {
   saveModalBounds,
 } from '@/content/helpers/modal-storage'
 import type { ModalBounds } from '@/content/helpers/modal-storage'
+import { MODAL_DIMENSIONS } from '@/content/constants/modal'
 import styles from '@/content/styles.module.css'
 
 /** Focusable selector for modal focus trap (buttons, links, inputs, and elements with tabindex ≥ 0). */
@@ -28,11 +28,7 @@ export function createModalOverlay(): HTMLDivElement {
   overlay.classList.add(styles.moreInfoModalOverlay)
   overlay.setAttribute('role', 'presentation')
   overlay.setAttribute('aria-hidden', 'true')
-  overlay.addEventListener(
-    'wheel',
-    (e) => e.preventDefault(),
-    { passive: false }
-  )
+  overlay.addEventListener('wheel', (e) => e.preventDefault(), { passive: false })
   return overlay
 }
 
@@ -77,11 +73,17 @@ export function createMoreInfoTriggerButton(
   btn.classList.add(styles.moreInfoTriggerBtn)
   if (centered) {
     btn.classList.add(styles.moreInfoTriggerBtnCentered)
-    btn.style.setProperty('--trigger-left', `${Math.min(frameLeft, frameRight) + Math.abs(frameRight - frameLeft) / 2}px`)
-    btn.style.setProperty('--trigger-top', `${Math.min(frameTop, frameBottom) + Math.abs(frameBottom - frameTop) / 2}px`)
+    btn.style.setProperty(
+      '--trigger-left',
+      `${Math.min(frameLeft, frameRight) + Math.abs(frameRight - frameLeft) / 2}px`
+    )
+    btn.style.setProperty(
+      '--trigger-top',
+      `${Math.min(frameTop, frameBottom) + Math.abs(frameBottom - frameTop) / 2}px`
+    )
   }
-  btn.title = 'Discover More About Distance Between Elements'
-  btn.setAttribute('aria-label', 'Discover more about distance between elements')
+  btn.title = 'More Details About Distance Between Elements'
+  btn.setAttribute('aria-label', 'More Details About Distance Between Elements')
   btn.setAttribute('aria-haspopup', 'dialog')
   btn.setAttribute('aria-expanded', 'false')
   const icon = document.createElement('span')

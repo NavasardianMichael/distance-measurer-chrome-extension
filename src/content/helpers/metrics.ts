@@ -1,4 +1,9 @@
-import { METRIC_LINE_WIDTH } from '@/content/constants/measurement'
+import {
+  HORIZONTAL_VALUE_WIDTH_ESTIMATE,
+  METRIC_VALUE_GAP,
+} from '@/content/constants/measurement'
+import { METRIC_CSS_VARS } from '@/content/constants/theme'
+import { getBorderWidthPx } from '@/content/helpers/css-var'
 import { formatPx } from '@/content/helpers/format'
 import { createMetricColorPickers } from '@/content/helpers/metric-colors'
 import type { ArrangedRects } from '@/content/helpers/modal-html'
@@ -171,6 +176,7 @@ function createArrowMetric(
   frameBottom: number,
   isVertical: boolean
 ): HTMLDivElement {
+  const lineWidth = getBorderWidthPx()
   const metricContainer = document.createElement('div')
   metricContainer.classList.add(styles.metricContainer)
   if (isVertical) {
@@ -178,22 +184,22 @@ function createArrowMetric(
     metricContainer.classList.add(styles['chevron-up'])
     metricContainer.classList.add(styles['chevron-down'])
     metricContainer.style.top = `${Math.min(frameTop, frameBottom)}px`
-    metricContainer.style.left = `${Math.min(frameLeft, frameRight) + Math.abs(frameLeft - frameRight) / 2 - METRIC_LINE_WIDTH / 2}px`
+    metricContainer.style.left = `${Math.min(frameLeft, frameRight) + Math.abs(frameLeft - frameRight) / 2 - lineWidth / 2}px`
   } else {
     metricContainer.classList.add(styles.metricHorizontal)
     metricContainer.classList.add(styles['chevron-left'])
     metricContainer.classList.add(styles['chevron-right'])
-    metricContainer.style.top = `${Math.min(frameTop, frameBottom) + Math.abs(frameTop - frameBottom) / 2 - METRIC_LINE_WIDTH / 2}px`
+    metricContainer.style.top = `${Math.min(frameTop, frameBottom) + Math.abs(frameTop - frameBottom) / 2 - lineWidth / 2}px`
     metricContainer.style.left = `${Math.min(frameLeft, frameRight)}px`
   }
 
   const metricLine = document.createElement('div')
   metricLine.classList.add(styles.metricLine)
   if (isVertical) {
-    metricLine.style.width = `${METRIC_LINE_WIDTH}px`
+    metricLine.style.width = `var(${METRIC_CSS_VARS.BORDER_WIDTH})`
     metricLine.style.height = `${Math.abs(frameTop - frameBottom)}px`
   } else {
-    metricLine.style.height = `${METRIC_LINE_WIDTH}px`
+    metricLine.style.height = `var(${METRIC_CSS_VARS.BORDER_WIDTH})`
     metricLine.style.width = `${Math.abs(frameLeft - frameRight)}px`
   }
   metricContainer.appendChild(metricLine)
@@ -202,6 +208,15 @@ function createArrowMetric(
   metricValue.classList.add(styles.metricValue)
   const value = isVertical ? Math.abs(frameTop - frameBottom) : Math.abs(frameLeft - frameRight)
   metricValue.innerText = formatPx(value)
+
+  if (!isVertical) {
+    const viewportRight = window.scrollX + window.innerWidth
+    const valueRightEdge = frameRight + METRIC_VALUE_GAP + HORIZONTAL_VALUE_WIDTH_ESTIMATE
+    if (valueRightEdge > viewportRight) {
+      metricValue.classList.add(styles.metricValueInside)
+    }
+  }
+
   metricContainer.appendChild(metricValue)
 
   return metricContainer

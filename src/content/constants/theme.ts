@@ -1,6 +1,7 @@
 export const METRIC_CSS_VARS = {
   PRIMARY: '--distance-measurer_metric-primary-color',
   SECONDARY: '--distance-measurer_metric-secondary-color',
+  BORDER_WIDTH: '--distance-measurer_border-width',
 } as const
 
 export const METRIC_COLOR_STORAGE_KEYS = {

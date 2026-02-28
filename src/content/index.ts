@@ -1,9 +1,11 @@
+import {
+  createElementOverlay,
+  removeElementOverlay,
+  updateOverlayPosition,
+} from '@/content/helpers/element-overlay'
 import { applyStoredMetricColors } from '@/content/helpers/metric-colors'
 import { createMetricsContainer, createColorPaletteBlock, computeArrangedRects } from '@/content/helpers/metrics'
 import styles from '@/content/styles.module.css'
-
-const hoveredClassName = styles['extension_hovered']
-const selectedClassName = styles['extension_selected']
 
 const state = { isMoreInfoModalOpen: false }
 
@@ -54,11 +56,62 @@ interface ListenerSpec {
 export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void } {
   const { paintMetrics, removeMetrics } = initMetrics(app)
 
-  let isCtrlPressed = false
+  let isAltPressed = false
   let hoveredElement: HTMLElement | null = null
-  const selectedElements = new Set<HTMLElement>()
+  let hoveredOverlay: HTMLDivElement | null = null
+  const selectedElements = new Map<HTMLElement, HTMLDivElement>()
   let lastMouseX = 0
   let lastMouseY = 0
+
+  function removeHoveredOverlay() {
+    if (hoveredOverlay) {
+      removeElementOverlay(hoveredOverlay)
+      hoveredOverlay = null
+    }
+    hoveredElement = null
+  }
+
+  function setHoveredElement(el: HTMLElement | null) {
+    if (hoveredOverlay) {
+      removeElementOverlay(hoveredOverlay)
+      hoveredOverlay = null
+    }
+    hoveredElement = el
+    if (el) {
+      hoveredOverlay = createElementOverlay(el, 'hovered')
+    }
+  }
+
+  function addSelectedElement(el: HTMLElement) {
+    const overlay = createElementOverlay(el, 'selected')
+    selectedElements.set(el, overlay)
+  }
+
+  function removeSelectedElement(el: HTMLElement) {
+    const overlay = selectedElements.get(el)
+    if (overlay) {
+      removeElementOverlay(overlay)
+      selectedElements.delete(el)
+    }
+  }
+
+  function clearAllSelected() {
+    for (const overlay of selectedElements.values()) {
+      removeElementOverlay(overlay)
+    }
+    selectedElements.clear()
+  }
+
+  function syncOverlayPositions() {
+    if (hoveredOverlay && hoveredElement && document.contains(hoveredElement)) {
+      updateOverlayPosition(hoveredOverlay, hoveredElement)
+    }
+    for (const [el, overlay] of selectedElements) {
+      if (document.contains(el)) {
+        updateOverlayPosition(overlay, el)
+      }
+    }
+  }
 
   const onMousemove: EventListener = (e) => {
     const ev = e as MouseEvent
@@ -67,41 +120,34 @@ export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void
   }
   const onKeydown: EventListener = (e) => {
     const ev = e as KeyboardEvent
-    if (ev.ctrlKey) {
-      isCtrlPressed = true
+    if (ev.altKey) {
+      isAltPressed = true
       const el = document.elementFromPoint(lastMouseX, lastMouseY)
       if (el && el instanceof HTMLElement && !app.contains(el)) {
         if (el !== hoveredElement) {
-          if (hoveredElement) hoveredElement.classList.remove(hoveredClassName)
-          hoveredElement = el
-          hoveredElement.classList.add(hoveredClassName)
+          setHoveredElement(el)
         }
       }
     }
   }
   const onKeyup: EventListener = (e) => {
-    if (!(e as KeyboardEvent).ctrlKey) isCtrlPressed = false
+    if (!(e as KeyboardEvent).altKey) {
+      isAltPressed = false
+      removeHoveredOverlay()
+    }
   }
   const onMouseover: EventListener = (e) => {
-    if (!isCtrlPressed) return
+    if (!isAltPressed) return
     const target = e.target
     if (target === hoveredElement || !(target instanceof HTMLElement)) return
     if (app.contains(target)) {
-      if (hoveredElement) {
-        hoveredElement.classList.remove(hoveredClassName)
-        hoveredElement = null
-      }
+      setHoveredElement(null)
       return
     }
-    if (hoveredElement) hoveredElement.classList.remove(hoveredClassName)
-    hoveredElement = target
-    hoveredElement.classList.add(hoveredClassName)
+    setHoveredElement(target)
   }
   const onMouseout: EventListener = () => {
-    if (hoveredElement) {
-      hoveredElement.classList.remove(hoveredClassName)
-      hoveredElement = null
-    }
+    removeHoveredOverlay()
   }
   const onClick: EventListener = (e) => {
     const target = (e as MouseEvent).target as HTMLElement | null
@@ -114,38 +160,35 @@ export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void
 
     if (state.isMoreInfoModalOpen) return
 
-    if ((e as MouseEvent).ctrlKey && (e as MouseEvent).button === 0) {
+    if ((e as MouseEvent).altKey && (e as MouseEvent).button === 0) {
       e.preventDefault()
       e.stopPropagation()
 
       if (selectedElements.has(target)) return
 
       if (selectedElements.size === 2) {
-        const first = selectedElements.values().next().value as HTMLElement
-        first.classList.remove(selectedClassName)
-        selectedElements.delete(first)
+        const first = selectedElements.keys().next().value as HTMLElement
+        removeSelectedElement(first)
       }
 
-      target.classList.add(selectedClassName)
-      selectedElements.add(target)
-      if (selectedElements.size === 2) void paintMetrics(selectedElements)
+      addSelectedElement(target)
+      if (selectedElements.size === 2) void paintMetrics(new Set(selectedElements.keys()))
 
       return
     }
 
-    if (!isCtrlPressed) {
+    if (!isAltPressed) {
       removeMetrics()
-      if (hoveredElement) {
-        hoveredElement.classList.remove(hoveredClassName)
-        hoveredElement = null
-      }
-      selectedElements.forEach((el) => el.classList.remove(selectedClassName))
-      selectedElements.clear()
+      removeHoveredOverlay()
+      clearAllSelected()
     }
   }
 
+  const onScrollOrResize = () => syncOverlayPositions()
+
   const mousemoveOpts: AddEventListenerOptions = { passive: true }
   const clickOpts: AddEventListenerOptions = { capture: true }
+  const scrollOpts: AddEventListenerOptions = { passive: true, capture: true }
 
   const listeners: ListenerSpec[] = [
     { target: document, event: 'mousemove', handler: onMousemove, options: mousemoveOpts },
@@ -154,6 +197,8 @@ export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void
     { target: document, event: 'mouseover', handler: onMouseover },
     { target: document, event: 'mouseout', handler: onMouseout },
     { target: document, event: 'click', handler: onClick, options: clickOpts },
+    { target: document, event: 'scroll', handler: onScrollOrResize, options: scrollOpts },
+    { target: window, event: 'resize', handler: onScrollOrResize },
   ]
 
   for (const { target, event, handler, options } of listeners) {
@@ -165,12 +210,8 @@ export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void
       target.removeEventListener(event, handler, options)
     }
     removeMetrics()
-    if (hoveredElement) {
-      hoveredElement.classList.remove(hoveredClassName)
-      hoveredElement = null
-    }
-    selectedElements.forEach((el) => el.classList.remove(selectedClassName))
-    selectedElements.clear()
+    removeHoveredOverlay()
+    clearAllSelected()
   }
 
   return { destroy }

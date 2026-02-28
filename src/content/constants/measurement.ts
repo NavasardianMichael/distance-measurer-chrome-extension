@@ -1,5 +1,8 @@
-/** Line width in px for distance metric lines and arrow stems */
-export const METRIC_LINE_WIDTH = 2
-
 /** Number of decimal places for displayed pixel values (getBoundingClientRect is subpixel). */
 export const DECIMAL_PLACES = 2
+
+/** Estimated width of horizontal metric value block for overflow check (avoids horizontal scroll). */
+export const HORIZONTAL_VALUE_WIDTH_ESTIMATE = 100
+
+/** Gap between metric line and value block. */
+export const METRIC_VALUE_GAP = 4

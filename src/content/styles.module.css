@@ -1,14 +1,14 @@
-/* Applied to page elements outside the extension root — literals only (vars exist inside root).
-   Local names without prefix so generateScopedName yields distance-measurer-extension_* */
-.extension_hovered {
-  transition: 0.1s;
-  outline: 1px dashed #18294d !important;
+/* Default metric colors and border width at :root for page-level overlays and frame borders */
+:root {
+  --distance-measurer_metric-primary-color: #18294d;
+  --distance-measurer_metric-secondary-color: #fff;
+  --distance-measurer_border-width: 2px;
 }
 
-.extension_selected {
-  transition: 0.2s;
-  outline: 1px solid #0d172c !important;
-  background: rgba(34, 93, 221, 0);
+/* Overlay elements (positioned over page elements) — not clipped by overflow, dashed/solid border. */
+.extension_hoveredOverlay,
+.extension_selectedOverlay {
+  pointer-events: none;
 }
 
 /* ---------------------------------------------------------------------------
@@ -19,9 +19,7 @@
   position: absolute !important;
   z-index: 2147483647 !important;
 
-  /* Theme variables (scoped to this root only) */
-  --distance-measurer_metric-primary-color: #18294d;
-  --distance-measurer_metric-secondary-color: #fff;
+  /* Theme variables (scoped to this root only; metric primary/secondary inherited from :root) */
   --distance-measurer_modal-primary-color: #18294d;
   --distance-measurer_modal-secondary-color: #fff;
   --distance-measurer_overlay-bg: rgba(0, 0, 0, 0.105);
@@ -56,6 +54,7 @@
   span,
   div {
     font-size: 16px !important;
+    line-height: normal !important;
   }
 
   p,
@@ -108,7 +107,7 @@
     box-sizing: border-box;
 
     &.frameVerticalBorder {
-      width: 1px;
+      width: var(--distance-measurer_border-width);
       top: 0;
       left: 0;
       right: auto;
@@ -122,7 +121,7 @@
     }
 
     &.frameHorizontalBorder {
-      height: 1px;
+      height: var(--distance-measurer_border-width);
       left: 0;
       top: 0;
       right: auto;
@@ -178,6 +177,10 @@
       right: 0;
       transform: translate(calc(100% + 4px), -50%);
     }
+
+    &.metricHorizontal .metricValue.metricValueInside {
+      transform: translate(-100%, -50%);
+    }
   }
 
   /* Info button: primary bg, secondary text (icon character) */
@@ -208,8 +211,8 @@
   }
 
   .moreInfoTriggerBtnIcon {
-    font-size: 1.1em;
-    line-height: 1;
+    font-size: 20px !important;
+    transform: translateY(-1px);
     cursor: pointer;
   }
 
@@ -225,7 +228,7 @@
     z-index: 2;
     color: var(--distance-measurer_modal-secondary-color);
     background-color: var(--distance-measurer_modal-primary-color);
-    padding: 6px;
+    padding: 6px 8px;
     border-radius: 4px;
     box-shadow: 0px 0px 2px var(--distance-measurer_modal-secondary-color);
   }
@@ -330,6 +333,22 @@
     cursor: grab;
     user-select: none;
     flex-shrink: 0;
+  }
+
+  .moreInfoModalHeaderTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .moreInfoModalLogo {
+    width: 28px;
+    height: 28px;
+    display: block;
+    flex-shrink: 0;
+    object-fit: contain;
   }
 
   .moreInfoModalHeaderActions {
