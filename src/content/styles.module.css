@@ -81,13 +81,13 @@
     pointer-events: none;
   }
 
-  /* Only the (i) button and color palette receive clicks; metrics container doesn't block */
+  /* Only the (i) button and settings block receive clicks; metrics container doesn't block */
   &.appRootWithMetrics .metricsContainer {
     pointer-events: none;
   }
 
   &.appRootWithMetrics .metricsContainer .moreInfoTriggerBtn,
-  &.appRootWithMetrics .colorPaletteBlock {
+  &.appRootWithMetrics .settingsBlock {
     pointer-events: auto;
   }
 
@@ -216,8 +216,8 @@
     cursor: pointer;
   }
 
-  /* Block 2: color palette, top-right of viewport */
-  .colorPaletteBlock {
+  /* Block 2: settings, top-right of viewport */
+  .settingsBlock {
     position: fixed;
     top: 12px;
     right: 12px;
@@ -225,12 +225,47 @@
     flex-direction: row;
     align-items: center;
     gap: 8px;
+    min-height: 24px;
+    line-height: 24px;
     z-index: 2;
     color: var(--distance-measurer_modal-secondary-color);
     background-color: var(--distance-measurer_modal-primary-color);
     padding: 6px 8px;
     border-radius: 4px;
     box-shadow: 0px 0px 2px var(--distance-measurer_modal-secondary-color);
+  }
+
+  .settingsResetBtn {
+    flex-shrink: 0;
+    align-self: center;
+    padding: 0;
+    border: none;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--distance-measurer_modal-secondary-color);
+    background-color: transparent;
+    cursor: pointer;
+    transition: 0.2s;
+
+    & > img {
+      transform: translateY(2px);
+    }
+  }
+
+  .settingsResetBtn:hover {
+    opacity: 0.8;
+  }
+
+  .settingsResetBtnIcon {
+    display: block;
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    /* img as external SVG doesn't inherit currentColor; filter makes it white (modal secondary) */
+    filter: brightness(0) invert(1);
   }
 
   .metricColorPicker {

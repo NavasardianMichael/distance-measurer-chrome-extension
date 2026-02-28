@@ -4,7 +4,7 @@ import {
   updateOverlayPosition,
 } from '@/content/helpers/element-overlay'
 import { applyStoredMetricColors } from '@/content/helpers/metric-colors'
-import { createMetricsContainer, createColorPaletteBlock, computeArrangedRects } from '@/content/helpers/metrics'
+import { createMetricsContainer, createSettingsBlock, computeArrangedRects } from '@/content/helpers/metrics'
 import styles from '@/content/styles.module.css'
 
 const state = { isMoreInfoModalOpen: false }
@@ -31,10 +31,10 @@ function initMetrics(app: HTMLDivElement) {
         onModalClosed: () => { state.isMoreInfoModalOpen = false },
         onModalOpened: () => { state.isMoreInfoModalOpen = true },
       })
-      const colorPaletteBlock = createColorPaletteBlock(app)
+      const settingsBlock = createSettingsBlock(app)
 
       app.appendChild(metricsContainer)
-      app.appendChild(colorPaletteBlock)
+      app.appendChild(settingsBlock)
     },
     removeMetrics() {
       app.innerHTML = ''

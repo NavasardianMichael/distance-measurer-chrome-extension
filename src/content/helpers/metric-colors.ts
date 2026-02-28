@@ -9,7 +9,7 @@ import { getCssVar } from '@/content/helpers/css-var'
 const COLOR_SAVE_DEBOUNCE_MS = 300
 
 /** Normalize CSS color to #rrggbb for input[type=color] (e.g. "white", "#fff", "rgb(255,255,255)" to "#ffffff"). */
-function toHex(color: string): string {
+export function toHex(color: string): string {
   const s = color.trim()
   if (!s) return DEFAULT_METRIC_PRIMARY
   if (/^#[0-9a-fA-F]{6}$/.test(s)) return s

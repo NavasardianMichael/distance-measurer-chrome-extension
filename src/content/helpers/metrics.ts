@@ -2,10 +2,11 @@ import {
   HORIZONTAL_VALUE_WIDTH_ESTIMATE,
   METRIC_VALUE_GAP,
 } from '@/content/constants/measurement'
-import { METRIC_CSS_VARS } from '@/content/constants/theme'
+import { DEFAULT_METRIC_PRIMARY, DEFAULT_METRIC_SECONDARY, METRIC_CSS_VARS } from '@/content/constants/theme'
 import { getBorderWidthPx } from '@/content/helpers/css-var'
-import { formatPx } from '@/content/helpers/format'
-import { createMetricColorPickers } from '@/content/helpers/metric-colors'
+import { formatPx, getExtensionURL } from '@/content/helpers/format'
+import { createMetricColorPickers, toHex } from '@/content/helpers/metric-colors'
+import resetSvgUrl from '@/content/assets/reset.svg?url'
 import type { ArrangedRects } from '@/content/helpers/modal-html'
 import { createMoreInfoTriggerButton, getInitialModalBounds, openMoreInfoModal } from '@/content/helpers/modal-ui'
 import styles from '@/content/styles.module.css'
@@ -222,17 +223,43 @@ function createArrowMetric(
   return metricContainer
 }
 
-/** Color palette block (top-right of viewport); only shown when metrics are painted. */
-export function createColorPaletteBlock(appRoot: HTMLDivElement): HTMLDivElement {
+/** Settings block (top-right of viewport); only shown when metrics are painted. */
+export function createSettingsBlock(appRoot: HTMLDivElement): HTMLDivElement {
   const block = document.createElement('div')
-  block.classList.add(styles.colorPaletteBlock)
+  block.classList.add(styles.settingsBlock)
   block.setAttribute('role', 'group')
-  block.setAttribute('aria-label', 'Metric color palette')
+  block.setAttribute('aria-label', 'Extension settings')
   const label = document.createElement('span')
-  label.textContent = 'Color Palette '
+  label.textContent = 'Settings '
   block.appendChild(label)
   const { primaryPicker, secondaryPicker } = createMetricColorPickers(appRoot, styles.metricColorPicker)
   block.appendChild(primaryPicker)
   block.appendChild(secondaryPicker)
+  block.appendChild(createResetButton(appRoot, primaryPicker, secondaryPicker))
   return block
+}
+
+function createResetButton(
+  appRoot: HTMLDivElement,
+  primaryPicker: HTMLInputElement,
+  secondaryPicker: HTMLInputElement
+): HTMLButtonElement {
+  const btn = document.createElement('button')
+  btn.type = 'button'
+  btn.classList.add(styles.settingsResetBtn)
+  btn.title = 'Reset all settings to defaults'
+  btn.setAttribute('aria-label', 'Reset all settings to defaults')
+  const img = document.createElement('img')
+  img.src = getExtensionURL(resetSvgUrl)
+  img.alt = ''
+  img.setAttribute('aria-hidden', 'true')
+  img.classList.add(styles.settingsResetBtnIcon)
+  btn.appendChild(img)
+  btn.addEventListener('click', async () => {
+    const { resetAllSettings } = await import('@/content/helpers/settings-reset')
+    await resetAllSettings(appRoot)
+    primaryPicker.value = toHex(DEFAULT_METRIC_PRIMARY)
+    secondaryPicker.value = toHex(DEFAULT_METRIC_SECONDARY)
+  })
+  return btn
 }
