@@ -1,10 +1,11 @@
 // src/manifest.ts
 import { ManifestV3Export } from '@crxjs/vite-plugin'
+import pkg from '../package.json'
 
 const manifest: ManifestV3Export = {
   name: 'Distance Measurer',
   description: `A simple distance measuring tool for web pages`,
-  version: '1.1.2',
+  version: pkg.version,
   manifest_version: 3,
   icons: {
     16: 'src/_shared/icons/logo16.png',

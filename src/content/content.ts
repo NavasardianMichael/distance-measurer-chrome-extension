@@ -1,3 +1,4 @@
+import '@/content/styles.module.css'
 import { initDistanceMeasurer } from '@/content/index'
 
 function initDistanceMeasurerApp() {
