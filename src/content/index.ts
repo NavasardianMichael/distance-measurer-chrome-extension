@@ -138,8 +138,13 @@ export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void
   }
   const onMouseover: EventListener = (e) => {
     if (!isAltPressed) return
-    const target = e.target
+    const target = e.target as Node
     if (target === hoveredElement || !(target instanceof HTMLElement)) return
+    // Ignore mouseover on our own overlays (e.g. after keydown creates overlay under cursor)
+    if (hoveredOverlay && (target === hoveredOverlay || hoveredOverlay.contains(target))) return
+    for (const overlay of selectedElements.values()) {
+      if (target === overlay || overlay.contains(target)) return
+    }
     if (app.contains(target)) {
       setHoveredElement(null)
       return
