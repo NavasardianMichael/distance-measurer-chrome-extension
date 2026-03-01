@@ -56,7 +56,7 @@ interface ListenerSpec {
 export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void } {
   const { paintMetrics, removeMetrics } = initMetrics(app)
 
-  let isAltPressed = false
+  let isDPressed = false
   let hoveredElement: HTMLElement | null = null
   let hoveredOverlay: HTMLDivElement | null = null
   const selectedElements = new Map<HTMLElement, HTMLDivElement>()
@@ -120,8 +120,8 @@ export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void
   }
   const onKeydown: EventListener = (e) => {
     const ev = e as KeyboardEvent
-    if (ev.altKey) {
-      isAltPressed = true
+    if (ev.key === 'd' || ev.key === 'D') {
+      isDPressed = true
       const el = document.elementFromPoint(lastMouseX, lastMouseY)
       if (el && el instanceof HTMLElement && !app.contains(el)) {
         if (el !== hoveredElement) {
@@ -131,13 +131,13 @@ export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void
     }
   }
   const onKeyup: EventListener = (e) => {
-    if (!(e as KeyboardEvent).altKey) {
-      isAltPressed = false
+    if ((e as KeyboardEvent).key === 'd' || (e as KeyboardEvent).key === 'D') {
+      isDPressed = false
       removeHoveredOverlay()
     }
   }
   const onMouseover: EventListener = (e) => {
-    if (!isAltPressed) return
+    if (!isDPressed) return
     const target = e.target as Node
     if (target === hoveredElement || !(target instanceof HTMLElement)) return
     // Ignore mouseover on our own overlays (e.g. after keydown creates overlay under cursor)
@@ -165,7 +165,7 @@ export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void
 
     if (state.isMoreInfoModalOpen) return
 
-    if ((e as MouseEvent).altKey && (e as MouseEvent).button === 0) {
+    if (isDPressed && (e as MouseEvent).button === 0) {
       e.preventDefault()
       e.stopPropagation()
 
@@ -182,7 +182,7 @@ export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void
       return
     }
 
-    if (!isAltPressed) {
+    if (!isDPressed) {
       removeMetrics()
       removeHoveredOverlay()
       clearAllSelected()
