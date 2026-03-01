@@ -337,7 +337,7 @@
     &:hover {
       *:not(.moreInfoModalResizeHandle):not(.closeMoreInfoModalBtn):not(.closeMoreInfoModalBtn *):not(.dimModalBtn):not(
           .dimModalBtn *
-        ) {
+        ):not(.moreInfoModalFooter):not(.moreInfoModalFooter *) {
         cursor: grab;
       }
 
@@ -475,6 +475,22 @@
     display: none;
     height: 0;
     width: 0;
+  }
+
+  .moreInfoModalFooter {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    border-top: 1px solid #d3d3d352;
+  }
+
+  .moreInfoModalFooterLink {
+    color: var(--distance-measurer_modal-primary-color);
+    cursor: pointer;
+    width: auto;
+  }
+
+  .moreInfoModalFooterLink:hover {
+    text-decoration: underline;
   }
 
   .moreInfoModalTitle {

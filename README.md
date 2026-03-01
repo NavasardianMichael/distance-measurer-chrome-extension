@@ -16,6 +16,9 @@ If something still looks cached, remove the extension and load unpacked from `di
 demo screenshot demo possible pages
 figma
 amazon
-gihub
-google maps
+
+<!-- gihub -->
+
+<!-- google -->
+
 privacy page

@@ -3,6 +3,7 @@ import tb_bt_image from '@/content/assets/tb-bt.png'
 import tt_bb_image from '@/content/assets/tt-bb.png'
 import tt_bt_image from '@/content/assets/tt-bt.png'
 import { formatPx, getExtensionURL } from '@/content/helpers/format'
+import { PATREON_URL } from '@/content/constants/modal'
 import styles from '@/content/styles.module.css'
 
 export type ArrangedRects = Record<'top' | 'bottom' | 'left' | 'right', DOMRect>
@@ -12,7 +13,7 @@ export function buildDistanceModalBodyHtml(rects: ArrangedRects): string {
   const b = rects.bottom
   const l = rects.left
   const r = rects.right
-  return (`
+  return `
     <div class="${styles.moreInfoModalHeader}" data-drag-handle role="region" aria-label="Modal header, drag to move">
       <div class="${styles.moreInfoModalHeaderTitleRow}">
         <img src="${getExtensionURL('src/_shared/icons/logo32.png')}" alt="" class="${styles.moreInfoModalLogo}" aria-hidden="true" />
@@ -89,5 +90,8 @@ export function buildDistanceModalBodyHtml(rects: ArrangedRects): string {
         </div>
       </div>
     </div>
-  `).trim()
+    <footer class="${styles.moreInfoModalFooter}" role="contentinfo">Support development on 
+      <a href="${PATREON_URL}" target="_blank" rel="noopener noreferrer" class="${styles.moreInfoModalFooterLink}">Patreon</a>
+    </footer>
+  `.trim()
 }

@@ -3,6 +3,9 @@ export const MODAL_DIMENSIONS = {
   MIN_HEIGHT: 200,
 }
 
+/** Patreon page URL for the support link in the modal footer */
+export const PATREON_URL = 'https://www.patreon.com/c/michaelnavasardian'
+
 /** Minimum px of modal that must stay visible on each viewport edge when restoring saved position */
 export const MODAL_VIEWPORT_THRESHOLD = 100
 
