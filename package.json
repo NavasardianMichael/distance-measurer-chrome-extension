@@ -11,7 +11,8 @@
     "format": "cd src && npx prettier --write .",
     "cleardeps": "rm -rf node_modules",
     "lint": "eslint .",
-    "generate-icons": "node scripts/generate-icons.mjs"
+    "generate-icons": "node scripts/generate-icons.mjs",
+    "generate-chrome-store-assets": "node scripts/generate-chrome-store-assets.mjs"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "2.0.0-beta.31",
