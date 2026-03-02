@@ -8,7 +8,7 @@ Copy everything below:
 
 ---
 
-Distance Measurer gives you pixel-perfect spacing between any two elements on a webpage. No DevTools, no rulers, no hassle—just double-tap D and click.
+Distance Measurer gives pixel-perfect spacing between any two elements on a webpage. No DevTools, no rulers, no hassle—just double-tap D and click.
 
 Who is this for?
 • Designers checking mockups against live sites
