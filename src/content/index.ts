@@ -56,6 +56,8 @@ interface ListenerSpec {
 export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void } {
   const { paintMetrics, removeMetrics } = initMetrics(app)
 
+  const DOUBLE_D_MS = 350
+  let lastDPressTime = 0
   let isDPressed = false
   let hoveredElement: HTMLElement | null = null
   let hoveredOverlay: HTMLDivElement | null = null
@@ -121,13 +123,18 @@ export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void
   const onKeydown: EventListener = (e) => {
     const ev = e as KeyboardEvent
     if (ev.key === 'd' || ev.key === 'D') {
-      isDPressed = true
-      const el = document.elementFromPoint(lastMouseX, lastMouseY)
-      if (el && el instanceof HTMLElement && !app.contains(el)) {
-        if (el !== hoveredElement) {
-          setHoveredElement(el)
+      if (ev.repeat) return
+      const now = Date.now()
+      if (now - lastDPressTime <= DOUBLE_D_MS) {
+        isDPressed = true
+        const el = document.elementFromPoint(lastMouseX, lastMouseY)
+        if (el && el instanceof HTMLElement && !app.contains(el)) {
+          if (el !== hoveredElement) {
+            setHoveredElement(el)
+          }
         }
       }
+      lastDPressTime = now
     }
   }
   const onKeyup: EventListener = (e) => {

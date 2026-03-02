@@ -71,9 +71,9 @@ export function computeArrangedRects(elements: [HTMLElement, HTMLElement]): {
     : arrangedRects.right.left
 
   const frameCoords: FrameCoords = {
-    frameTopDoc: frameTop + scrollY,
+    frameTopDoc: frameTop + scrollY - 1,
     frameBottomDoc: frameBottom + scrollY,
-    frameLeftDoc: frameLeft + scrollX,
+    frameLeftDoc: frameLeft + scrollX - 1,
     frameRightDoc: frameRight + scrollX,
     docWidth,
     docHeight,

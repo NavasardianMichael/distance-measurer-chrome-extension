@@ -165,7 +165,7 @@
     &.metricVertical .metricValue {
       bottom: 0;
       left: 50%;
-      transform: translate(-50%, calc(100% + 4px));
+      transform: translate(calc(-50% + var(--distance-measurer_border-width)), calc(100% + 4px));
       /* Prevent narrow parent (2px line) from constraining width and stacking chars vertically */
       width: max-content;
       min-width: max-content;
@@ -175,7 +175,7 @@
 
     &.metricHorizontal .metricValue {
       right: 0;
-      transform: translate(calc(100% + 4px), -50%);
+      transform: translate(calc(100% + 4px), calc(-50% - var(--distance-measurer_border-width)));
     }
 
     &.metricHorizontal .metricValue.metricValueInside {

@@ -1,4 +1,3 @@
-import { getBorderWidthPx } from '@/content/helpers/css-var'
 import { METRIC_CSS_VARS } from '@/content/constants/theme'
 import styles from '@/content/styles.module.css'
 
@@ -6,7 +5,6 @@ export type OverlayKind = 'hovered' | 'selected'
 
 /** Create an overlay div that frames the given element. Appended to body, positioned fixed. */
 export function createElementOverlay(element: HTMLElement, kind: OverlayKind): HTMLDivElement {
-  const borderWidth = getBorderWidthPx()
   const overlay = document.createElement('div')
   overlay.className = kind === 'hovered' ? styles.extension_hoveredOverlay : styles.extension_selectedOverlay
   overlay.setAttribute('aria-hidden', 'true')
@@ -22,7 +20,7 @@ export function createElementOverlay(element: HTMLElement, kind: OverlayKind): H
   overlay.style.opacity = '0'
 
   document.body.appendChild(overlay)
-  updateOverlayPosition(overlay, element, borderWidth)
+  updateOverlayPosition(overlay, element)
 
   requestAnimationFrame(() => {
     overlay.style.opacity = '1'
@@ -35,13 +33,12 @@ export function createElementOverlay(element: HTMLElement, kind: OverlayKind): H
 export function updateOverlayPosition(
   overlay: HTMLDivElement,
   element: HTMLElement,
-  borderWidth: number = getBorderWidthPx()
 ): void {
   const rect = element.getBoundingClientRect()
-  overlay.style.top = `${rect.top - borderWidth}px`
-  overlay.style.left = `${rect.left - borderWidth}px`
-  overlay.style.width = `${rect.width + borderWidth * 2}px`
-  overlay.style.height = `${rect.height + borderWidth * 2}px`
+  overlay.style.top = `${rect.top}px`
+  overlay.style.left = `${rect.left}px`
+  overlay.style.width = `${rect.width + 1}px`
+  overlay.style.height = `${rect.height + 1}px`
 }
 
 /** Remove overlay from DOM. */
