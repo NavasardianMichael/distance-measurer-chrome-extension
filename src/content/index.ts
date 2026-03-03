@@ -1,10 +1,6 @@
-import {
-  createElementOverlay,
-  removeElementOverlay,
-  updateOverlayPosition,
-} from '@/content/helpers/element-overlay'
+import { createElementOverlay, removeElementOverlay, updateOverlayPosition } from '@/content/helpers/element-overlay'
 import { applyStoredMetricColors } from '@/content/helpers/metric-colors'
-import { createMetricsContainer, createSettingsBlock, computeArrangedRects } from '@/content/helpers/metrics'
+import { computeArrangedRects, createMetricsContainer, createSettingsBlock } from '@/content/helpers/metrics'
 import styles from '@/content/styles.module.css'
 
 const state = { isMoreInfoModalOpen: false }
@@ -28,8 +24,12 @@ function initMetrics(app: HTMLDivElement) {
         frameCoords,
         arrangedRects,
         appRoot: app,
-        onModalClosed: () => { state.isMoreInfoModalOpen = false },
-        onModalOpened: () => { state.isMoreInfoModalOpen = true },
+        onModalClosed: () => {
+          state.isMoreInfoModalOpen = false
+        },
+        onModalOpened: () => {
+          state.isMoreInfoModalOpen = true
+        },
       })
       const settingsBlock = createSettingsBlock(app)
 
@@ -56,7 +56,7 @@ interface ListenerSpec {
 export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void } {
   const { paintMetrics, removeMetrics } = initMetrics(app)
 
-  const DOUBLE_D_MS = 350
+  const DOUBLE_D_MS = 200
   let lastDPressTime = 0
   let isDPressed = false
   let hoveredElement: HTMLElement | null = null
@@ -166,8 +166,7 @@ export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void
     if (!target) return
 
     const isInsideApp = app.contains(target)
-    const isOverlayClick =
-      target instanceof Element && target.classList.contains(styles.moreInfoModalOverlay)
+    const isOverlayClick = target instanceof Element && target.classList.contains(styles.moreInfoModalOverlay)
     if (isInsideApp || isOverlayClick) return
 
     if (state.isMoreInfoModalOpen) return
