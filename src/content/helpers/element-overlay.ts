@@ -8,7 +8,7 @@ export function createElementOverlay(element: HTMLElement, kind: OverlayKind): H
   const overlay = document.createElement('div')
   overlay.className = kind === 'hovered' ? styles.extension_hoveredOverlay : styles.extension_selectedOverlay
   overlay.setAttribute('aria-hidden', 'true')
-  overlay.style.pointerEvents = 'none'
+  overlay.style.pointerEvents = 'none' /* never capture mouse/touch; events pass through to page */
   overlay.style.position = 'fixed'
   overlay.style.boxSizing = 'border-box'
   overlay.style.borderStyle = kind === 'hovered' ? 'dashed' : 'solid'

@@ -57,10 +57,12 @@ export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void
   const { paintMetrics, removeMetrics } = initMetrics(app)
 
   const DOUBLE_D_MS = 200
+  const HOVER_UPDATE_THROTTLE_MS = 50
   let lastDPressTime = 0
   let isDPressed = false
   let hoveredElement: HTMLElement | null = null
   let hoveredOverlay: HTMLDivElement | null = null
+  let pendingHoverTarget: HTMLElement | null | undefined = undefined // undefined = no pending
   const selectedElements = new Map<HTMLElement, HTMLDivElement>()
   let lastMouseX = 0
   let lastMouseY = 0
@@ -82,6 +84,25 @@ export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void
     if (el) {
       hoveredOverlay = createElementOverlay(el, 'hovered')
     }
+  }
+
+  /** Defer overlay DOM work to next frame so we don't block mouse/other events in the current handler. */
+  let deferredHoverTarget: HTMLElement | null | undefined = undefined
+  let deferredRafId: number | null = null
+  function scheduleSetHoveredElement(el: HTMLElement | null) {
+    deferredHoverTarget = el
+    if (deferredRafId != null) return
+    deferredRafId = requestAnimationFrame(() => {
+      deferredRafId = null
+      const toApply = deferredHoverTarget
+      deferredHoverTarget = undefined
+      if (toApply === undefined) return
+      setHoveredElement(toApply)
+    })
+  }
+
+  function scheduleRemoveHoveredOverlay() {
+    scheduleSetHoveredElement(null)
   }
 
   function addSelectedElement(el: HTMLElement) {
@@ -130,7 +151,7 @@ export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void
         const el = document.elementFromPoint(lastMouseX, lastMouseY)
         if (el && el instanceof HTMLElement && !app.contains(el)) {
           if (el !== hoveredElement) {
-            setHoveredElement(el)
+            scheduleSetHoveredElement(el)
           }
         }
       }
@@ -140,26 +161,46 @@ export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void
   const onKeyup: EventListener = (e) => {
     if ((e as KeyboardEvent).key === 'd' || (e as KeyboardEvent).key === 'D') {
       isDPressed = false
-      removeHoveredOverlay()
+      pendingHoverTarget = undefined
+      scheduleRemoveHoveredOverlay()
     }
   }
+
+  const applyPendingHover = () => {
+    if (pendingHoverTarget === undefined) return
+    const target = pendingHoverTarget
+    pendingHoverTarget = undefined
+    if (!isDPressed) return
+    if (target === hoveredElement) return
+    scheduleSetHoveredElement(target)
+  }
+  let hoverThrottleId: ReturnType<typeof setTimeout> | null = null
+  const throttledApplyHover = () => {
+    if (hoverThrottleId != null) return
+    hoverThrottleId = setTimeout(() => {
+      hoverThrottleId = null
+      applyPendingHover()
+    }, HOVER_UPDATE_THROTTLE_MS)
+  }
+
   const onMouseover: EventListener = (e) => {
     if (!isDPressed) return
     const target = e.target as Node
     if (target === hoveredElement || !(target instanceof HTMLElement)) return
-    // Ignore mouseover on our own overlays (e.g. after keydown creates overlay under cursor)
     if (hoveredOverlay && (target === hoveredOverlay || hoveredOverlay.contains(target))) return
     for (const overlay of selectedElements.values()) {
       if (target === overlay || overlay.contains(target)) return
     }
     if (app.contains(target)) {
-      setHoveredElement(null)
+      pendingHoverTarget = undefined
+      scheduleSetHoveredElement(null)
       return
     }
-    setHoveredElement(target)
+    pendingHoverTarget = target
+    throttledApplyHover()
   }
   const onMouseout: EventListener = () => {
-    removeHoveredOverlay()
+    scheduleRemoveHoveredOverlay()
   }
   const onClick: EventListener = (e) => {
     const target = (e as MouseEvent).target as HTMLElement | null
@@ -190,7 +231,7 @@ export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void
 
     if (!isDPressed) {
       removeMetrics()
-      removeHoveredOverlay()
+      scheduleRemoveHoveredOverlay()
       clearAllSelected()
     }
   }
@@ -219,6 +260,11 @@ export function initDistanceMeasurer(app: HTMLDivElement): { destroy: () => void
   function destroy() {
     for (const { target, event, handler, options } of listeners) {
       target.removeEventListener(event, handler, options)
+    }
+    if (deferredRafId != null) {
+      cancelAnimationFrame(deferredRafId)
+      deferredRafId = null
+      deferredHoverTarget = undefined
     }
     removeMetrics()
     removeHoveredOverlay()
