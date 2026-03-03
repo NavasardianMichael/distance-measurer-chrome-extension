@@ -1,14 +1,11 @@
-import {
-  HORIZONTAL_VALUE_WIDTH_ESTIMATE,
-  METRIC_VALUE_GAP,
-} from '@/content/constants/measurement'
-import { DEFAULT_METRIC_PRIMARY, DEFAULT_METRIC_SECONDARY, METRIC_CSS_VARS } from '@/content/constants/theme'
+import resetSvgUrl from '@/content/assets/reset.svg?url'
 import { getBorderWidthPx } from '@/content/helpers/css-var'
 import { formatPx, getExtensionURL } from '@/content/helpers/format'
 import { createMetricColorPickers, toHex } from '@/content/helpers/metric-colors'
-import resetSvgUrl from '@/content/assets/reset.svg?url'
 import type { ArrangedRects } from '@/content/helpers/modal-html'
 import { createMoreInfoTriggerButton, getInitialModalBounds, openMoreInfoModal } from '@/content/helpers/modal-ui'
+import { HORIZONTAL_VALUE_WIDTH_ESTIMATE, METRIC_VALUE_GAP } from '@/content/constants/measurement'
+import { DEFAULT_METRIC_PRIMARY, DEFAULT_METRIC_SECONDARY, METRIC_CSS_VARS } from '@/content/constants/theme'
 import styles from '@/content/styles.module.css'
 
 export type CreateMetricsContainerOptions = {
@@ -71,9 +68,9 @@ export function computeArrangedRects(elements: [HTMLElement, HTMLElement]): {
     : arrangedRects.right.left
 
   const frameCoords: FrameCoords = {
-    frameTopDoc: frameTop + scrollY - 1,
+    frameTopDoc: frameTop + scrollY,
     frameBottomDoc: frameBottom + scrollY,
-    frameLeftDoc: frameLeft + scrollX - 1,
+    frameLeftDoc: frameLeft + scrollX,
     frameRightDoc: frameRight + scrollX,
     docWidth,
     docHeight,
@@ -83,12 +80,7 @@ export function computeArrangedRects(elements: [HTMLElement, HTMLElement]): {
   return { arrangedRects, frameCoords }
 }
 
-function createFrameBorder(
-  kind: 'horizontal' | 'vertical',
-  top: number,
-  left: number,
-  size: number
-): HTMLDivElement {
+function createFrameBorder(kind: 'horizontal' | 'vertical', top: number, left: number, size: number): HTMLDivElement {
   const el = document.createElement('div')
   el.classList.add(styles.frameBorder)
   el.classList.add(kind === 'horizontal' ? styles.frameHorizontalBorder : styles.frameVerticalBorder)
@@ -100,13 +92,7 @@ function createFrameBorder(
 }
 
 export function createMetricsContainer(options: CreateMetricsContainerOptions): HTMLDivElement {
-  const {
-    frameCoords,
-    arrangedRects,
-    appRoot,
-    onModalClosed,
-    onModalOpened,
-  } = options
+  const { frameCoords, arrangedRects, appRoot, onModalClosed, onModalOpened } = options
   const {
     frameTopDoc,
     frameBottomDoc,
@@ -124,34 +110,26 @@ export function createMetricsContainer(options: CreateMetricsContainerOptions): 
   container.setAttribute('aria-label', 'Distance measurement between selected elements')
 
   if (!isVerticallyOverlapping) {
-    container.appendChild(createFrameBorder('horizontal', frameTopDoc, 0, docWidth))
+    container.appendChild(createFrameBorder('horizontal', frameTopDoc - 1, 0, docWidth))
     container.appendChild(createFrameBorder('horizontal', frameBottomDoc, 0, docWidth))
   }
   if (!isHorizontallyOverlapping) {
-    container.appendChild(createFrameBorder('vertical', 0, frameLeftDoc, docHeight))
+    container.appendChild(createFrameBorder('vertical', 0, frameLeftDoc - 1, docHeight))
     container.appendChild(createFrameBorder('vertical', 0, frameRightDoc, docHeight))
   }
 
   if (!isVerticallyOverlapping) {
-    container.appendChild(
-      createArrowMetric(frameLeftDoc, frameRightDoc, frameTopDoc, frameBottomDoc, true)
-    )
+    container.appendChild(createArrowMetric(frameLeftDoc, frameRightDoc, frameTopDoc, frameBottomDoc, true))
   }
   if (!isHorizontallyOverlapping) {
-    container.appendChild(
-      createArrowMetric(frameLeftDoc, frameRightDoc, frameTopDoc, frameBottomDoc, false)
-    )
+    container.appendChild(createArrowMetric(frameLeftDoc, frameRightDoc, frameTopDoc, frameBottomDoc, false))
   }
 
   const centerX = Math.min(frameLeftDoc, frameRightDoc) + Math.abs(frameRightDoc - frameLeftDoc) / 2
   const centerY = Math.min(frameTopDoc, frameBottomDoc) + Math.abs(frameBottomDoc - frameTopDoc) / 2
-  const triggerBtn = createMoreInfoTriggerButton(
-    frameLeftDoc,
-    frameRightDoc,
-    frameTopDoc,
-    frameBottomDoc,
-    { centered: false }
-  )
+  const triggerBtn = createMoreInfoTriggerButton(frameLeftDoc, frameRightDoc, frameTopDoc, frameBottomDoc, {
+    centered: false,
+  })
   triggerBtn.style.left = `${centerX}px`
   triggerBtn.style.top = `${centerY}px`
   triggerBtn.onclick = async () => {

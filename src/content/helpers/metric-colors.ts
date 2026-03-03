@@ -7,6 +7,7 @@ import {
 import { getCssVar } from '@/content/helpers/css-var'
 
 const COLOR_SAVE_DEBOUNCE_MS = 300
+const COLOR_APPLY_THROTTLE_MS = 50
 
 /** Normalize CSS color to #rrggbb for input[type=color] (e.g. "white", "#fff", "rgb(255,255,255)" to "#ffffff"). */
 export function toHex(color: string): string {
@@ -68,6 +69,25 @@ export async function applyStoredMetricColors(root: HTMLElement): Promise<void> 
   applyMetricColors(root, primary, secondary)
 }
 
+/** Throttle fn to at most once per ms; trailing call uses latest state (caller reads fresh values inside fn). */
+function throttle(fn: () => void, ms: number): () => void {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null
+  let last = 0
+  return () => {
+    const now = Date.now()
+    if (now - last >= ms) {
+      last = now
+      fn()
+    } else if (timeoutId == null) {
+      timeoutId = setTimeout(() => {
+        timeoutId = null
+        last = Date.now()
+        fn()
+      }, ms - (now - last))
+    }
+  }
+}
+
 /** Persist current metric colors from root to storage (same pattern as modal position/size). Debounced. */
 function createDebouncedSaveMetricColors(root: HTMLElement): () => void {
   let timeoutId: ReturnType<typeof setTimeout> | null = null
@@ -104,11 +124,22 @@ export function createMetricColorPicker(
   input.title = kind === 'primary' ? 'Metric primary color (arrows, labels background)' : 'Metric secondary color (label text, info icon)'
   input.setAttribute('aria-label', input.title)
 
-  input.addEventListener('input', () => {
+  const applyFromInput = () => {
     const value = input.value
     const primary = kind === 'primary' ? value : getCssVar(METRIC_CSS_VARS.PRIMARY, DEFAULT_METRIC_PRIMARY, root)
     const secondary = kind === 'secondary' ? value : getCssVar(METRIC_CSS_VARS.SECONDARY, DEFAULT_METRIC_SECONDARY, root)
     applyMetricColors(root, primary, secondary)
+  }
+
+  const throttledApply = throttle(applyFromInput, COLOR_APPLY_THROTTLE_MS)
+
+  input.addEventListener('input', () => {
+    throttledApply()
+    debouncedSave()
+  })
+
+  input.addEventListener('change', () => {
+    applyFromInput()
     debouncedSave()
   })
 
