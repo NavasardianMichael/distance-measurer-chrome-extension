@@ -24,6 +24,10 @@ Instantly measure pixel-perfect spacing between elements on any webpage.
 
 Click the extension from Chrome’s top-right extensions UI (the `Distance Measurer` item). It opens a popup with the same “How it works?” instructions and links.
 
+### Published to Chrome Web Store
+
+[Distance Measurer on the Chrome Web Store](https://chromewebstore.google.com/detail/distance-measurer/nnlpnhpjpjgbajcdpngnhhcikmmafdji)
+
 ### Build & develop
 
 Run:
