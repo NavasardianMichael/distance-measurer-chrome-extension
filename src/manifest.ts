@@ -19,11 +19,11 @@ const manifest: ManifestV3Export = {
       js: ['src/content/content.ts'],
     },
   ],
-  "web_accessible_resources": [
+  web_accessible_resources: [
     {
-      "resources": ["src/content/assets/*.png", "src/content/assets/*.svg", "src/_shared/icons/*.png"],
-      "matches": ["<all_urls>"]
-    }
+      resources: ['src/content/assets/*.png', 'src/content/assets/*.svg', 'src/_shared/icons/*.png'],
+      matches: ['<all_urls>'],
+    },
   ],
   action: {
     default_icon: {
@@ -32,6 +32,7 @@ const manifest: ManifestV3Export = {
       48: 'src/_shared/icons/logo48.png',
     },
     default_title: 'Distance Measurer',
+    default_popup: 'popup.html',
   },
   permissions: ['activeTab', 'storage'],
 }
