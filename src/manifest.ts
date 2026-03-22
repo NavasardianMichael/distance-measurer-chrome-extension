@@ -34,7 +34,7 @@ const manifest: ManifestV3Export = {
     default_title: 'Distance Measurer',
     default_popup: 'popup.html',
   },
-  permissions: ['activeTab', 'storage'],
+  permissions: ['storage'],
 }
 
 export default manifest
